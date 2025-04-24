@@ -677,3 +677,5 @@
 ;; */
 ;;
 
+
+;;langs[lang].append([[[j(thing.find_all('td')[1].find('h2').text.split()), j(thing.find_all('td')[1].find('p').text.split())]   for thing in (something.find_all('tr'))] for something in sp(file.read(), 'html.parser')] 
