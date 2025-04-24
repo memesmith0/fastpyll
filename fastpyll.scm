@@ -724,4 +724,4 @@
 (define u-vats-code 
   (call (attribute (key "langs" "lang") "append"))
         (array (call "j" (call (attribute (attribute (call (attribute (key (call (attribute "thing" "find_all") "td") "1") "find") "h2") "text" ) "split")))
-               
+               (call "j" (call (attribute (attribute (call (attribute (key (call (attribute "thing" "find_all") "td") "1") "find") "p") "text") "split")))
