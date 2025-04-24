@@ -712,7 +712,7 @@
 
 ;;langs[lang].append([[[j(thing.find_all('td')[1].find('h2').text.split()), j(thing.find_all('td')[1].find('p').text.split())]   for thing in (something.find_all('tr'))] for something in sp(file.read(), 'html.parser')] 
 
-                                                ;;langs[lang].append([
+;;langs[lang].append([
 ;;    [
 ;;        j(thing.find_all('td')[1].find('h2').text.split()),
 ;;        j(thing.find_all('td')[1].find('p').text.split())
@@ -721,4 +721,7 @@
 ;;]
 ;;for something in sp(file.read(), 'html.parser')]
 
-(define u-vats-code (attribute (key "langs" "lang") "append"))
+(define u-vats-code 
+  (call (attribute (key "langs" "lang") "append"))
+        (array (call "j" (call (attribute (attribute (call (attribute (key (call (attribute "thing" "find_all") "td") "1") "find") "h2") "text" ) "split")))
+               
