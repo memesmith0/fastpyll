@@ -696,7 +696,19 @@
           (if (null? (cdr remaining-arguments))
               (string-append current-string (car remaining-arguments) ")")
               (loop (cdr remaining-arguments)
-                    (string-append current-string (car remaining-arguments) ",")))))))
+                    (string-append current-string (car remaining-arguments) ",")))))
+
+;;this code is from gemini 2.0
+(define (array elements)
+  (let ((initial-string "[ "))
+    (if (null? elements)
+        (string-append initial-string "]")
+        (let loop ((remaining-elements elements)
+                   (current-string initial-string))
+          (if (null? (cdr remaining-elements))
+              (string-append current-string (car remaining-elements) "]")
+              (loop (cdr remaining-elements)
+                    (string-append current-string (car remaining-elements) " , ")))))))
 
 ;;langs[lang].append([[[j(thing.find_all('td')[1].find('h2').text.split()), j(thing.find_all('td')[1].find('p').text.split())]   for thing in (something.find_all('tr'))] for something in sp(file.read(), 'html.parser')] 
 
