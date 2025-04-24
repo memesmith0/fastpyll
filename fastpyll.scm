@@ -682,6 +682,20 @@
 
 (define attribute (lambda (x y) (concat x "." y)))
 
+(define call-meta (lambda (&rest list) (concat (if
+
+(define call (lambda (x &rest list) (concat x call-meta list)))
+
+(define (call name arguments)
+  (let ((initial-string (string-append name "(")))
+    (if (null? arguments)
+        (string-append initial-string ")")
+        (let loop ((remaining-arguments arguments)
+                   (current-string initial-string))
+          (if (null? (cdr remaining-arguments))
+              (string-append current-string (car remaining-arguments) ")")
+              (loop (cdr remaining-arguments)
+                    (string-append current-string (car remaining-arguments) ",")))))))
 
 ;;langs[lang].append([[[j(thing.find_all('td')[1].find('h2').text.split()), j(thing.find_all('td')[1].find('p').text.split())]   for thing in (something.find_all('tr'))] for something in sp(file.read(), 'html.parser')] 
 ;;langs[lang].append([
