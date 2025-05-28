@@ -242,7 +242,7 @@
 
 (define for (lambda x y z lines)
 	(concat (append (list "for( " x " ; " y " ; " z ") {\n")
-			(intersperse "\n" lines)
+			(intersperse ";\n" lines)
 			(list "}\n")))
 
 (define assign
@@ -257,7 +257,38 @@
 	(lambda (x)
 		(concat x "++")))
 
+(define if-statement
+	(lambda (x lines)
+	(concat (append (list "if( " x " ) {\n")
+			(intersperse ";\n" lines)
+			(list "}"))))))
 
+(define else-if-statement
+	(lambda (x lines)
+	(concat (append (list "else if( " x " ) {\n")
+			(intersperse ";\n" lines)
+			(list "}"))))))
+
+
+(define else-statement
+	(lambda (lines)
+	(concat (append (list "else {\n")
+			(intersperse ";\n" lines)
+			(list "}")))))
+
+
+(define and-operator
+	(lambda (x y)
+		(concat x " && " y)))
+
+
+(define equality-operator
+	(lambda (x y)
+		(concat x " == " y)))
+
+(define modulo-operator
+	(lambda (x y)
+		(concat x " % " y)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -272,6 +303,8 @@
 		 (list (for (type "int" (assign "i" 1))
 		       	    (less-than-or-equal-to "i" "100")
 			    (post-increment "i")
-			    (list 
-
-)))))
+			    (list (if-statement (and-operator (equality-operator (modulo-operator "i" "3")
+			    	  			      			 "0")
+							      (equality-operator (modulo-operatr "i" "5")
+							      			 "0"))
+										 
