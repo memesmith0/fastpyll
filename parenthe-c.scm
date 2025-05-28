@@ -290,8 +290,47 @@
 	(lambda (x y)
 		(concat x " % " y)))
 
+(define string
+	(lambda (x)
+		(concat "\"" x  "\"")))
+
+(define call
+	(lambda (x y)
+		(concat (append (list x "( ")
+				(intersperse " , " y)
+				(list " )")))))
+
+(define return
+	(lambda (x)
+		(concat "return" x)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;
+;#include <stdio.h>
+;
+;int main() {
+;    for (int i = 1; i <= 100; i++) {
+;        ; Check for divisibility by both 3 and 5 first
+;        if (i % 3 == 0 && i % 5 == 0) {
+;            printf("FizzBuzz\n");
+;        } 
+;        ; Check for divisibility by 3
+;        else if (i % 3 == 0) {
+;            printf("Fizz\n");
+;        } 
+;        ; Check for divisibility by 5
+;        else if (i % 5 == 0) {
+;            printf("Buzz\n");
+;        } 
+;        ; If not divisible by 3 or 5, print the number
+;        else {
+;            printf("%d\n", i);
+;        }
+;    }
+;    return 0;
+;}
 
 
 (display (concat
@@ -299,12 +338,23 @@
 
 
 (type "int" (function "main"
-		 (list "")
-		 (list (for (type "int" (assign "i" 1))
-		       	    (less-than-or-equal-to "i" "100")
-			    (post-increment "i")
-			    (list (if-statement (and-operator (equality-operator (modulo-operator "i" "3")
-			    	  			      			 "0")
-							      (equality-operator (modulo-operatr "i" "5")
+		      (list "")
+		      (list (for (type "int" (assign "i" 1))
+		       	    	 (less-than-or-equal-to "i" "100")
+			    	 (post-increment "i")
+			    	 (list (if-statement (and-operator (equality-operator (modulo-operator "i" "3")
+			    	  			      			      "0")
+								   (equality-operator (modulo-operator "i" "5")
 							      			 "0"))
-										 
+							(call "printf" (list (string "fizzbuzz!"))))
+					(else-if-statement (equality-operator (modulo-operator "i" "3")
+			    	  			      			      "0")
+								
+							(call "printf" (list (string "fizz!"))))
+					(else-if-statement (equality-operator (modulo-operator "i" "5")
+			    	  			      			      "0")
+								
+							(call "printf" (list (string "buzz!"))))
+					(else-statement (call "printf" (list (string "%d\\\n")
+							      	       	     "i")))))
+				(return "0"))))))
