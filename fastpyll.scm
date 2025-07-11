@@ -676,52 +676,142 @@
 ;;<https://www.gnu.org/licenses/why-not-lgpl.html>.
 ;; */
 ;;
+(define better-eval (lambda (x env)
+			    (if (pair? x)
+				(eval x env)
+				x)))
+(define depth 0)
+
+(define intersperse (lambda (x)
+  (cond
+    ((null? x) "")
+    ((null? (cdr x)) (car x))
+    (else (string-append (car x) " , " (intersperse (cdr x)))))))
+
+;(define intersperse (lambda (x)
+;		      (if (string? x)
+;			  x
+;			  (string-append (car x) " , " (if (= (length (cdr x)) 1)
+;							   (car (cdr x))
+;							   (cdr x)))
+;			  )))
+  
+(define indent (lambda (n)
+		 (if (= n 0)
+		     ""
+		     (if (= n 1)
+		     "\t"
+		     (string-append "\t" (indent (- n 1)))))))
+
+(define check-for-indents (lambda (x)
+			    (and (string? x)
+				 (not (string-null? x))
+			    (char=? #\tab (string-ref x 0)))))
 
 
-(define key (lambda (x y) (concat x "[ " y " ]")))
+(define def-helper (lambda (x y)
+		     (if (null? x)
+			 ""
+			 (string-append (if (check-for-indents (car x)) (car x) (string-append (indent y) (car x))) "\n" (def-helper (cdr x) y)))))
+									     
 
-(define attribute (lambda (x y) (concat x "." y)))
+			
+(define def (lambda (x y . z)
+	      (string-append
+	       (indent depth)
+	       "def "
+	       x
+	       "( "
+	       (intersperse y)
+	       " ):\n"
+	       (begin
+		 (set! depth (+ depth 1))
+		 (let ((foo (def-helper (map (lambda (x) (better-eval x (interaction-environment))) z) depth)))
+		   (set! depth (- depth 1))
+			 foo)
+	       ))))
 
-(define call-meta (lambda (&rest list) (concat (if
 
-(define call (lambda (x &rest list) (concat x call-meta list)))
+;(define for-helper (lambda (x y)
+;		     (if
+;		      (string? x)
+;		      (string-append "\n" (indent y) x "\n")
+;		      (string-append "\n" (indent y) (car x) "\n" (def-helper (if (= (length (cdr x)) 1)
+;									(car (cdr x))
+;									(cdr x)) y)
+;									     
+					;		))))
+(define for-helper def-helper)
+			
+(define for (lambda (x y . z)
+	      (string-append
+	       (indent depth)
+	       "for "
+	       x
+	       " in "
+	       (better-eval y (interaction-environment))
+	       ":\n"
+	       (begin
+		 (set! depth (+ depth 1))
+		 (let ((foo (for-helper (map (lambda (x) (better-eval x (interaction-environment))) z) depth)))
+		   (set! depth (- depth 1))
+			 foo)
+		 ))))
 
-;;this code is from gemini 2.0                                               
-(define (call name arguments)
-  (let ((initial-string (string-append name "(")))
-    (if (null? arguments)
-        (string-append initial-string ")")
-        (let loop ((remaining-arguments arguments)
-                   (current-string initial-string))
-          (if (null? (cdr remaining-arguments))
-              (string-append current-string (car remaining-arguments) ")")
-              (loop (cdr remaining-arguments)
-                    (string-append current-string (car remaining-arguments) ",")))))
+(define pif (lambda (x . z)
+	      (string-append
+	       (indent depth)
+	       "if "
+	       (better-eval x (interaction-environment))
+	       ":\n"
+	       (begin
+		 (set! depth (+ depth 1))
+		 (let ((foo (for-helper (map (lambda (x) (better-eval x (interaction-environment))) z) depth)))
+		   (set! depth (- depth 1))
+			 foo)
+		 ))))
 
-;;this code is from gemini 2.0
-(define (array elements)
-  (let ((initial-string "[ "))
-    (if (null? elements)
-        (string-append initial-string "]")
-        (let loop ((remaining-elements elements)
-                   (current-string initial-string))
-          (if (null? (cdr remaining-elements))
-              (string-append current-string (car remaining-elements) "]")
-              (loop (cdr remaining-elements)
-                    (string-append current-string (car remaining-elements) " , ")))))))
+(define call (lambda (x . y)
+	       (string-append (better-eval x (interaction-environment)) "( "  (intersperse (map (lambda (z) (better-eval z (interaction-environment))) y)) " )")))
 
-;;langs[lang].append([[[j(thing.find_all('td')[1].find('h2').text.split()), j(thing.find_all('td')[1].find('p').text.split())]   for thing in (something.find_all('tr'))] for something in sp(file.read(), 'html.parser')] 
+(define add (lambda (x y)
+	      (string-append (better-eval x (interaction-environment)) " + " (better-eval y (interaction-environment)))))
 
-;;langs[lang].append([
-;;    [
-;;        j(thing.find_all('td')[1].find('h2').text.split()),
-;;        j(thing.find_all('td')[1].find('p').text.split())
-;;    ]
-;;    for thing in (something.find_all('tr'))
-;;]
-;;for something in sp(file.read(), 'html.parser')]
+(define modulo (lambda (x y)
+		 (string-append (better-eval x (interaction-environment)) " % " (better-eval y (interaction-environment)))))
 
-(define u-vats-code 
-  (call (attribute (key "langs" "lang") "append"))
-        (array (call "j" (call (attribute (attribute (call (attribute (key (call (attribute "thing" "find_all") "td") "1") "find") "h2") "text" ) "split")))
-               (call "j" (call (attribute (attribute (call (attribute (key (call (attribute "thing" "find_all") "td") "1") "find") "p") "text") "split")))
+(define equal (lambda (x y)
+		(string-append (better-eval x (interaction-environment)) " == " (better-eval y (interaction-environment)))))
+
+
+(define pand (lambda (x y)
+	       (string-append (better-eval x (interaction-environment)) " and " (better-eval y (interaction-environment)))))
+
+(define string (lambda (x)
+	      (string-append "\"" (better-eval x (interaction-environment)) "\"")))
+
+			
+
+(display
+ (def "fizzbuzz" (list "n")
+      '(for "i" (call "range" "1" (add "n" "1"))
+	    (pif (pand
+		  (equal "0" (modulo "i" "3"))
+		  (equal "0" (modulo "i" "5"))
+		  )
+		 (call "print" (string "fizzbuzz"))))))
+		 
+;(display (for "x" "y" "baddle" "waddle"))
+;def fizzbuzz(n):
+;    for i in range(1, n + 1):
+;        if i % 3 == 0 and i % 5 == 0:
+;            print("FizzBuzz")
+;        elif i % 3 == 0:
+;            print("Fizz")
+;        elif i % 5 == 0:
+;            print("Buzz")
+;        else:
+;            print(i)
+;
+;# Example usage:
+;fizzbuzz(15)
