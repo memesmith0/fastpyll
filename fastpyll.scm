@@ -676,130 +676,123 @@
 ;;<https://www.gnu.org/licenses/why-not-lgpl.html>.
 ;; */
 ;;
-(define better-eval (lambda (x env)
-			    (if (pair? x)
-				(eval x env)
-				x)))
+
 (define depth 0)
 
-(define intersperse (lambda (x)
-  (cond
-    ((null? x) "")
-    ((null? (cdr x)) (car x))
-    (else (string-append (car x) " , " (intersperse (cdr x)))))))
-
-;(define intersperse (lambda (x)
-;		      (if (string? x)
-;			  x
-;			  (string-append (car x) " , " (if (= (length (cdr x)) 1)
-;							   (car (cdr x))
-;							   (cdr x)))
-;			  )))
-  
-(define indent (lambda (n)
-		 (if (= n 0)
+(define indent (lambda (x)
+		 (if (= x 0)
 		     ""
-		     (if (= n 1)
-		     "\t"
-		     (string-append "\t" (indent (- n 1)))))))
+		     (string-append "    " (indent (- x 1))))))
 
-(define check-for-indents (lambda (x)
-			    (and (string? x)
-				 (not (string-null? x))
-			    (char=? #\tab (string-ref x 0)))))
+(define intersperse (lambda (x)
+		      (if (> (length x) 1)
+			  (string-append (car x) " , " (intersperse (cdr x)))
+			  (car x))))
 
-
-(define def-helper (lambda (x y)
-		     (if (null? x)
-			 ""
-			 (string-append (if (check-for-indents (car x)) (car x) (string-append (indent y) (car x))) "\n" (def-helper (cdr x) y)))))
-									     
-
-			
-(define def (lambda (x y . z)
-	      (string-append
-	       (indent depth)
-	       "def "
-	       x
-	       "( "
-	       (intersperse y)
-	       " ):\n"
-	       (begin
-		 (set! depth (+ depth 1))
-		 (let ((foo (def-helper (map (lambda (x) (better-eval x (interaction-environment))) z) depth)))
-		   (set! depth (- depth 1))
-			 foo)
-	       ))))
+(define helper (lambda (d x)
+		 (if (pair? x)
+		     (string-append (indent d) (car x) "\n" (helper d (cdr x)))
+  "")))
+				
+(define def (lambda (d x y . z)
+	      (string-append 
+			     "def "
+			     x
+			     "( "
+			     (intersperse y)
+			     " ):\n"
+			     (helper d z))))
 
 
-;(define for-helper (lambda (x y)
-;		     (if
-;		      (string? x)
-;		      (string-append "\n" (indent y) x "\n")
-;		      (string-append "\n" (indent y) (car x) "\n" (def-helper (if (= (length (cdr x)) 1)
-;									(car (cdr x))
-;									(cdr x)) y)
-;									     
-					;		))))
-(define for-helper def-helper)
-			
-(define for (lambda (x y . z)
-	      (string-append
-	       (indent depth)
-	       "for "
-	       x
-	       " in "
-	       (better-eval y (interaction-environment))
-	       ":\n"
-	       (begin
-		 (set! depth (+ depth 1))
-		 (let ((foo (for-helper (map (lambda (x) (better-eval x (interaction-environment))) z) depth)))
-		   (set! depth (- depth 1))
-			 foo)
-		 ))))
-
-(define pif (lambda (x . z)
-	      (string-append
-	       (indent depth)
-	       "if "
-	       (better-eval x (interaction-environment))
-	       ":\n"
-	       (begin
-		 (set! depth (+ depth 1))
-		 (let ((foo (for-helper (map (lambda (x) (better-eval x (interaction-environment))) z) depth)))
-		   (set! depth (- depth 1))
-			 foo)
-		 ))))
+(define for (lambda (d x y . z)
+	      (string-append 
+			     "for "
+			     x
+			     " in "
+			     y
+			     ":\n"
+			     (helper d z))))
 
 (define call (lambda (x . y)
-	       (string-append (better-eval x (interaction-environment)) "( "  (intersperse (map (lambda (z) (better-eval z (interaction-environment))) y)) " )")))
+	       (string-append
+		x
+		"( "
+		(intersperse y)
+		" )"
+		)))
 
 (define add (lambda (x y)
-	      (string-append (better-eval x (interaction-environment)) " + " (better-eval y (interaction-environment)))))
+	      (string-append
+	       x
+	       " + "
+	       y)))
 
-(define modulo (lambda (x y)
-		 (string-append (better-eval x (interaction-environment)) " % " (better-eval y (interaction-environment)))))
+(define pif (lambda (d x . z)
+	      (string-append 
+			     "if "
+			     x
+			     ":\n"
+			     (helper d z))))
+
+(define pelif (lambda (d x . z)
+	      (string-append 
+			     "elif "
+			     x
+			     ":\n"
+			     (helper d z))))
+
+(define pelse (lambda (d . z)
+	      (string-append 
+			     "else:\n"
+			     (helper d z))))
 
 (define equal (lambda (x y)
-		(string-append (better-eval x (interaction-environment)) " == " (better-eval y (interaction-environment)))))
+	      (string-append
+	       x
+	       " == "
+	       y)))
+
+
+(define modulo (lambda (x y)
+	      (string-append
+	       x
+	       " % "
+	       y)))
 
 
 (define pand (lambda (x y)
-	       (string-append (better-eval x (interaction-environment)) " and " (better-eval y (interaction-environment)))))
+	      (string-append
+	       x
+	       " and "
+	       y)))
+
 
 (define string (lambda (x)
-	      (string-append "\"" (better-eval x (interaction-environment)) "\"")))
+	      (string-append
+	       "\""
+	       x
+	       "\""
+	       )))
 
-			
+
 
 (display
- (def "fizzbuzz" (list "n")
-      '(for "i" (call "range" "1" (add "n" "1"))
-	    (pif (pand
-		  (equal "0" (modulo "i" "3"))
-		  (equal "0" (modulo "i" "5"))
-		  )
-		 (call "print" (string "fizzbuzz"))))))
+ (def 1 "fizzbuzz" (list "n")
+      (for 2 "i" (call "range" "1" (add "n" "1"))
+	   (pif 3  (pand
+		    (equal "0" (modulo "i" "3"))
+		    (equal "0" (modulo "i" "5")))
+		(call "print" (string "fizzbuzz")))
+	   (pelif 3 (equal "0" (modulo "i" "3"))
+		  (call "print" (string "fizz")))
+	   (pelif 3 (equal "0" (modulo "i" "5"))
+		  (call "print" (string "buzz")))
+	   (pelse 3
+		  (call "print" "i")))))
+
+
+	      
+
 		 
 ;(display (for "x" "y" "baddle" "waddle"))
 ;def fizzbuzz(n):
