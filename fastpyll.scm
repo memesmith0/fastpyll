@@ -703,6 +703,33 @@
 			     (helper d z))))
 
 
+
+(define class (lambda (d x . z)
+	      (string-append 
+			     "class "
+			     x
+			     ":\n\n"
+			     (helper d z))))
+
+
+				
+(define match (lambda (d y . z)
+	      (string-append 
+			     "match "
+			     y
+			     ":\n\n"
+			     (helper d z))))
+
+
+(define case (lambda (d y . z)
+	      (string-append 
+			     "case "
+			     y
+			     ":\n\n"
+			     (helper d z))))
+
+
+
 (define for (lambda (d x y . z)
 	      (string-append 
 			     "for "
@@ -711,6 +738,131 @@
 			     y
 			     ":\n\n"
 			     (helper d z))))
+
+
+
+(define plambda (lambda (x y)
+	      (string-append 
+			     "lambda "
+			     x
+			     ": "
+			     y)))
+
+
+(define import-from
+  (lambda (x y)
+    (string-append
+     "from "
+     x
+     " import "
+     y)))
+
+
+(define import-as
+  (lambda (x y)
+    (string-append
+     "import "
+     x
+     " as "
+     y)))
+
+(define directory (lambda (x) (call "dir" x)))
+			     
+
+
+(define while (lambda (d x. z)
+	      (string-append 
+			     "while "
+			     x
+			     ":\n\n"
+			     (helper d z))))
+
+
+(define except (lambda (d x y. z)
+	      (string-append 
+			     "except "
+			     x
+			     " as "
+			     y
+			     ":\n\n"
+			     (helper d z))))
+
+
+(define try (lambda (d . z)
+	      (string-append 
+			     "try"
+			     ":\n\n"
+			     (helper d z))))
+
+
+(define finally (lambda (d . z)
+	      (string-append 
+			     "finally"
+			     ":\n\n"
+			     (helper d z))))
+
+
+(define with (lambda (d x y. z)
+	      (string-append 
+	       "with "
+	       x
+	       " as "
+	       y
+			     ":\n\n"
+			     (helper d z))))
+
+(define import (lambda (x)
+		 (string-append
+		 "import "
+		 x
+		 )))
+
+
+(define iterate (lambda (x) (call "iter" x)))
+
+(define next (lambda (x) (call "next" x)))
+
+(define plist (lambda (x) (call "list" x)))
+
+
+(define variable-arguments
+  (lambda (x) (call "varargs" x)))
+
+(define keyword-aruments
+  (lambda (x y) (def keyword_args x y)))
+
+
+
+(define raise (lambda (x)
+		(string-append
+		 "raise " x)))
+
+(define return
+
+  (lambda (x)
+    (string-append
+     "return "
+     (intersperse x))))
+
+(define nonlocal (lambda (x)
+
+		   (string-append
+		    "nonlocal "
+		    x)))
+
+
+(define pmap
+  (lambda (x)
+    (call "map" x)))
+
+
+(define filter
+  (lambda (x)
+    (call "filter" x)))
+     
+
+(define indexerror (lambda (x)
+		     (call "IndexError" x)))
 
 (define call (lambda (x . y)
 	       (string-append
@@ -725,6 +877,59 @@
 	       x
 	       " + "
 	       y)))
+
+
+(define subtract (lambda (x y)
+	      (string-append
+	       x
+	       " - "
+	       y)))
+
+
+(define multiply (lambda (x y)
+	      (string-append
+	       x
+	       " * "
+	       y)))
+
+
+(define divide (lambda (x y)
+	      (string-append
+	       x
+	       " / "
+	       y)))
+
+(define floor-divide (lambda (x y)
+	      (string-append
+	       x
+	       " // "
+	       y)))
+
+(define exponentiate (lambda (x y)
+	      (string-append
+	       x
+	       " ** "
+	       y)))
+
+
+(define group (lambda (x)
+		(string-append
+		 "( "
+	       x
+
+	       " )"
+	       )
+		))
+
+  (define pnot (lambda (x)
+		 (string-append
+		  "not "
+		  x)))
+
+  (define true "True")
+  
+  (define false "False")
+
 
 (define pif (lambda (d x . z)
 	      (string-append 
@@ -766,6 +971,73 @@
 	       y)))
 
 
+
+(define less-than (lambda (x y)
+	      (string-append
+	       x
+	       " < "
+	       y)))
+
+
+(define greater-than (lambda (x y)
+	      (string-append
+	       x
+	       " > "
+	       y)))
+
+(define less-than-or-equal-to (lambda (x y)
+	      (string-append
+	       x
+	       " <= "
+	       y)))
+(define greater-than-or-equal-to (lambda (x y)
+	      (string-append
+	       x
+	       " >= "
+	       y)))
+
+
+(define array (lambda (x)
+		(string-append
+		 "[ "
+	       (intersperse x)
+	       " ]"
+	       )))
+
+(define plength (lambda (x)
+		  (call "len" x)))
+
+
+(define object (lambda (x)
+		(string-append
+		 "{ "
+	       x
+	       " }"
+	       )))
+
+
+(define assign (lambda (x)
+		(string-append
+		 "{ "
+	       x
+	       " }"
+	       )))
+
+
+(define not-equal (lambda (x y)
+	      (string-append
+	       x
+	       " = "
+	       y)))
+
+
+(define pand (lambda (x y)
+	      (string-append
+	       x
+	       " or "
+	       y)))
+
+
 (define string (lambda (x)
 	      (string-append
 	       "\""
@@ -773,6 +1045,141 @@
 	       "\""
 	       )))
 
+(define none "None")
+
+(define is (lambda (x y)
+	     (string-append
+	      x
+	      " is "
+	      y)))
+
+
+
+(define fstring (lambda (x)
+	      (string-append
+	       "f\""
+	       x
+	       "\""
+	       )))
+
+(define print (lambda (x) (call "print" x)))
+
+(define enumerate (lambda (x) (call "enumerate" x)))
+
+
+(define bool (lambda (x) (call "bool" x)))
+
+(define set (lambda (x) (call "set" x)))
+
+(define negate (lambda (x) (string-append
+			    "-"
+			    x)))
+
+(define input (lambda (x) (call "input" x)))
+
+(define ternary-operation (lambda (x y z)
+		  (string-append
+		   x
+		   " if "
+		   y
+		   " else "
+		   z)))
+
+
+(define access (lambda (x y)
+		 (string-append
+		  x
+		  "."
+		  y)))
+
+
+(define range (lambda (x y)
+		(string-append
+		 x
+		 ":"
+		 y)))
+
+(define delete-element (lambda (x)
+			 (string-append
+			  "del "
+			  x)))
+
+(define type (lambda (x)
+	       (call "type" x)))
+
+(define unpack intersperse)
+
+(define dictionary object)
+
+(define comment (lambda (x)
+		  (string-append
+		   "#"
+		   x
+		   "\n")))
+
+(define in (lambda (x y)
+	     (string-append
+	      x
+	      " in "
+	      y)))
+
+(define key (lambda (x y)
+  (string-append
+   x
+   ": "
+   y)))
+
+(define set-intersection
+  (lambda (x y)
+  (string-append
+   x
+   " & "
+   y)))
+
+(define set-union
+  (lambda (x y)
+  (string-append
+   x
+   " | "
+   y)))
+
+(define set-difference
+  subtract)
+
+
+(define set-symmetric-difference
+  (lambda (x y)
+    (string-append
+     x
+     " ^ "
+     y)))
+
+
+(define set-is-superset
+    (lambda (x y)
+    (string-append
+     x
+     " >= "
+     y)))
+
+
+
+(define set-is-subset
+    (lambda (x y)
+    (string-append
+     x
+     " <= "
+     y)))
+
+(define range (lambda (x)
+		(call "range" x)))
+
+
+
+
+
+	     
+(define self "self")
 
 (define check-for-structure (lambda (x)
 			    (if (and (symbol? (car x))
@@ -780,9 +1187,22 @@
 					     (eq? (car x) 'for)
 					     (eq? (car x) 'pif)
 					     (eq? (car x) 'pelif)
+					     (eq? (car x) 'match)
+					     (eq? (car x) 'case)
+					     (eq? (car x) 'while)
+					     (eq? (car x) 'except)
+					     (eq? (car x) 'try)
+					     (eq? (car x) 'with)
+					     (eq? (car x) 'class)
+					     (eq? (car x) 'finally)
 					     (eq? (car x) 'pelse)))
 				#t
 				#f)))
+
+
+
+
+
 
 
 (define add-indentation
@@ -871,7 +1291,17 @@
   (lambda (x)
   (display
    (eval (add-indentation #t 1
-	x) (interaction-environment)))))		  
+			  x) (interaction-environment)))))
+
+
+(define isinstance (lambda (x) (call "isinstance" x)))
+
+
+(define yield (lambda (x)
+		(string-append
+		 "yield "
+		 x)))
+(define break "break")
   
 				    
 
