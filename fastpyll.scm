@@ -677,7 +677,6 @@
 ;; */
 ;;
 
-(define depth 0)
 
 (define indent (lambda (x)
 		 (if (= x 0)
@@ -700,7 +699,7 @@
 			     x
 			     "( "
 			     (intersperse y)
-			     " ):\n"
+			     " ):\n\n"
 			     (helper d z))))
 
 
@@ -710,7 +709,7 @@
 			     x
 			     " in "
 			     y
-			     ":\n"
+			     ":\n\n"
 			     (helper d z))))
 
 (define call (lambda (x . y)
@@ -731,19 +730,19 @@
 	      (string-append 
 			     "if "
 			     x
-			     ":\n"
+			     ":\n\n"
 			     (helper d z))))
 
 (define pelif (lambda (d x . z)
 	      (string-append 
 			     "elif "
 			     x
-			     ":\n"
+			     ":\n\n"
 			     (helper d z))))
 
 (define pelse (lambda (d . z)
 	      (string-append 
-			     "else:\n"
+			     "else:\n\n"
 			     (helper d z))))
 
 (define equal (lambda (x y)
@@ -775,20 +774,119 @@
 	       )))
 
 
+(define check-for-structure (lambda (x)
+			    (if (and (symbol? (car x))
+					 (or (eq? (car x) 'def)
+					     (eq? (car x) 'for)
+					     (eq? (car x) 'pif)
+					     (eq? (car x) 'pelif)
+					     (eq? (car x) 'pelse)))
+				#t
+				#f)))
+
+
+(define add-indentation
+  (lambda (b counter x)
+    (cond
+
+     ;;;(add-indentation #t ((foo bar) foo .. ...))
+     ((and b (list? (car x)) (> (length x) 1))
+
+      (append (add-indentation #t counter (car x)) (let ((foo (add-indentation #f counter (cdr x))))
+						     (if (list? foo)
+							 foo
+							 (list foo))))
+
+      )
+
+     ;;;(add-indentation #f ((foo bar) foo ....))
+     ((and (not b) (list? (car x)) (> (length x) 1))
+
+      (append (list (add-indentation #t counter (car x))) (let (( foo(add-indentation #f counter (cdr x))))
+						     (if (list? foo)
+							 foo
+							 (list))))
+      
+
+      )
+
+
+	  ;;; (add-indentation #t (foo bar foo ...)
+	  ((and  b (not (list? (car x))) (> (length x) 1))
+
+	   (append (list (car x))
+		   (if (check-for-structure x)
+		       (append (list counter) (let ((foo (add-indentation #f (+ counter 1) (cdr x))))
+						(if (list? foo)
+						    foo
+						    (list foo)))
+			       )
+		       (let ((foo (add-indentation #f counter (cdr x))))
+			 (if (list? foo)
+			     foo
+			     (list foo)))))
+	   
+	   )
+
+
+	  ;;; (add-indentation #t ((foo bar))
+	  ((and b (list? (car x)) (not (> (length x) 1))) 
+
+	   (list (add-indentation #t counter (car x)))
+
+	  )
+
+	  
+	  ;;; (add-indentation #f (foo bar ....)
+	  ((and (not b) (not (list? (car x))) (> (length x) 1))
+
+	   (append (list (car x)) (let ((foo (add-indentation #f counter (cdr x))))
+				    (if (list? foo)
+					foo
+					(list foo))))
+	       
+	   
+	   )
+
+	  
+	  ;;; (add-indentation #f ((foo bar))
+	  ((and (not b) (list? (car x)) (not (> (length x) 1)))
+
+	   (list (add-indentation #t counter (car x)))
+
+	   )
+
+	  ;;; (add-indentatioon #t (foo)
+	  ((and  b (not (list? (car x))) (not (> (length x) 1))) (car x))
+
+	  ;;; (add-indentation #f (foo)
+	  ((and (not b) (not (list? (car x))) (not (> (length x) 1))) (car x))
+	  )
+    )
+  )
+
+
+	  						  
+
+				    
 
 (display
- (def 1 "fizzbuzz" (list "n")
-      (for 2 "i" (call "range" "1" (add "n" "1"))
-	   (pif 3  (pand
-		    (equal "0" (modulo "i" "3"))
-		    (equal "0" (modulo "i" "5")))
-		(call "print" (string "fizzbuzz")))
-	   (pelif 3 (equal "0" (modulo "i" "3"))
-		  (call "print" (string "fizz")))
-	   (pelif 3 (equal "0" (modulo "i" "5"))
-		  (call "print" (string "buzz")))
-	   (pelse 3
-		  (call "print" "i")))))
+ (eval (add-indentation #t 1
+ '(def  "fizzbuzz" (list "n")
+	      (for  "i" (call "range" "1" (add "n" "1"))
+		   (pif   (pand
+			  (equal "0" (modulo "i" "3"))
+			  (equal "0" (modulo "i" "5")))
+			 (call "print" (string "fizzbuzz")))
+		   (pelif  (equal "0" (modulo "i" "3"))
+			  (call "print" (string "fizz")))
+		   (pelif  (equal "0" (modulo "i" "5"))
+			  (call "print" (string "buzz")))
+		   (pelse 
+		    (call "print" "i")))))))
+
+
+
 
 
 	      
@@ -808,3 +906,4 @@
 ;
 ;# Example usage:
 ;fizzbuzz(15)
+
