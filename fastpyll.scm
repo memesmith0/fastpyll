@@ -693,7 +693,7 @@
 		     (string-append (indent d) (car x) "\n" (helper d (cdr x)))
   "")))
 				
-(define def (lambda (d x y . z)
+(define def (lambda (d x y z)
 	      (string-append 
 			     "def "
 			     x
@@ -704,7 +704,7 @@
 
 
 
-(define class (lambda (d x . z)
+(define class (lambda (d x z)
 	      (string-append 
 			     "class "
 			     x
@@ -713,7 +713,7 @@
 
 
 				
-(define match (lambda (d y . z)
+(define match (lambda (d y z)
 	      (string-append 
 			     "match "
 			     y
@@ -721,7 +721,7 @@
 			     (helper d z))))
 
 
-(define case (lambda (d y . z)
+(define case (lambda (d y z)
 	      (string-append 
 			     "case "
 			     y
@@ -730,7 +730,7 @@
 
 
 
-(define for (lambda (d x y . z)
+(define for (lambda (d x y z)
 	      (string-append 
 			     "for "
 			     x
@@ -766,11 +766,20 @@
      " as "
      y)))
 
+(define call (lambda (x y)
+	       (string-append
+		x
+		"( "
+		(intersperse y)
+		" )"
+		)))
+
+
 (define directory (lambda (x) (call "dir" x)))
 			     
 
 
-(define while (lambda (d x. z)
+(define while (lambda (d x z)
 	      (string-append 
 			     "while "
 			     x
@@ -778,7 +787,7 @@
 			     (helper d z))))
 
 
-(define except (lambda (d x y. z)
+(define except (lambda (d x y z)
 	      (string-append 
 			     "except "
 			     x
@@ -788,21 +797,21 @@
 			     (helper d z))))
 
 
-(define try (lambda (d . z)
+(define try (lambda (d z)
 	      (string-append 
 			     "try"
 			     ":\n\n"
 			     (helper d z))))
 
 
-(define finally (lambda (d . z)
+(define finally (lambda (d z)
 	      (string-append 
 			     "finally"
 			     ":\n\n"
 			     (helper d z))))
 
 
-(define with (lambda (d x y. z)
+(define with (lambda (d x y z)
 	      (string-append 
 	       "with "
 	       x
@@ -828,24 +837,18 @@
 (define variable-arguments
   (lambda (x) (call "varargs" x)))
 
-(define keyword-aruments
-  (lambda (x y) (def keyword_args x y)))
-
-
 
 (define raise (lambda (x)
 		(string-append
 		 "raise " x)))
 
 (define return
-
   (lambda (x)
     (string-append
      "return "
      (intersperse x))))
 
 (define nonlocal (lambda (x)
-
 		   (string-append
 		    "nonlocal "
 		    x)))
@@ -861,16 +864,9 @@
     (call "filter" x)))
      
 
-(define indexerror (lambda (x)
+(define index-error (lambda (x)
 		     (call "IndexError" x)))
 
-(define call (lambda (x . y)
-	       (string-append
-		x
-		"( "
-		(intersperse y)
-		" )"
-		)))
 
 (define add (lambda (x y)
 	      (string-append
@@ -931,21 +927,21 @@
   (define false "False")
 
 
-(define pif (lambda (d x . z)
+(define pif (lambda (d x z)
 	      (string-append 
 			     "if "
 			     x
 			     ":\n\n"
 			     (helper d z))))
 
-(define pelif (lambda (d x . z)
+(define pelif (lambda (d x z)
 	      (string-append 
 			     "elif "
 			     x
 			     ":\n\n"
 			     (helper d z))))
 
-(define pelse (lambda (d . z)
+(define pelse (lambda (d z)
 	      (string-append 
 			     "else:\n\n"
 			     (helper d z))))
@@ -1011,31 +1007,32 @@
 (define object (lambda (x)
 		(string-append
 		 "{ "
-	       x
+	       (intersperse x)
 	       " }"
 	       )))
 
 
-(define assign (lambda (x)
+(define assign (lambda (x y)
 		(string-append
-		 "{ "
 	       x
-	       " }"
+	       " = "
+	       y
 	       )))
 
 
 (define not-equal (lambda (x y)
 	      (string-append
 	       x
-	       " = "
+	       " != "
 	       y)))
 
 
-(define pand (lambda (x y)
+(define por (lambda (x y)
 	      (string-append
 	       x
 	       " or "
 	       y)))
+
 
 
 (define string (lambda (x)
@@ -1196,6 +1193,7 @@
 					     (eq? (car x) 'class)
 					     (eq? (car x) 'finally)
 					     (eq? (car x) 'pelse)))
+
 				#t
 				#f)))
 
@@ -1307,17 +1305,18 @@
 
 (fastpyll
  '(def  "fizzbuzz" (list "n")
-	      (for  "i" (call "range" "1" (add "n" "1"))
-		   (pif   (pand
-			  (equal "0" (modulo "i" "3"))
-			  (equal "0" (modulo "i" "5")))
-			 (call "print" (string "fizzbuzz")))
-		   (pelif  (equal "0" (modulo "i" "3"))
-			  (call "print" (string "fizz")))
-		   (pelif  (equal "0" (modulo "i" "5"))
-			  (call "print" (string "buzz")))
+	    (list
+         (for   "i" (call "range" (list "1" (add "n" "1")))
+		       (list
+                (pif    (pand (equal "0" (modulo "i" "3"))
+			                 (equal "0" (modulo "i" "5")))
+			           (list (call "print" (list (string "fizzbuzz")))))
+		   (pelif   (equal "0" (modulo "i" "3"))
+			  (list (call "print" (list (string "fizz")))))
+		   (pelif   (equal "0" (modulo "i" "5"))
+			  (list (call "print" (list (string "buzz")))))
 		   (pelse 
-		    (call "print" "i")))))
+		    (list (call "print" (list "i")))))))))
 
 
 
