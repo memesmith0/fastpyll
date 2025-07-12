@@ -867,11 +867,15 @@
 
 
 	  						  
-
+(define fastpyll
+  (lambda (x)
+  (display
+   (eval (add-indentation #t 1
+	x) (interaction-environment)))))		  
+  
 				    
 
-(display
- (eval (add-indentation #t 1
+(fastpyll
  '(def  "fizzbuzz" (list "n")
 	      (for  "i" (call "range" "1" (add "n" "1"))
 		   (pif   (pand
@@ -883,8 +887,7 @@
 		   (pelif  (equal "0" (modulo "i" "5"))
 			  (call "print" (string "buzz")))
 		   (pelse 
-		    (call "print" "i")))))))
-
+		    (call "print" "i")))))
 
 
 
