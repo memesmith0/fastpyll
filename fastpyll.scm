@@ -1288,10 +1288,23 @@
 
 
 	  						  
-(define fastpyll
+;(define fastpyll
+;  (lambda (x)
+;  (display x)))
+
+  (define fastpyll
   (lambda (x)
+    (if (> (length x) 0) 
+	(begin 
    (display (eval (add-indentation #t 1
-			  x) (interaction-environment)))))
+				   (car x)) (interaction-environment)))
+   (display "\n\n")
+      (if (> (length x) 0) (fastpyll (cdr x)) 0)
+      
+      0)
+
+	0)))
+
 
 
 (define isinstance (lambda (x) (call "isinstance" x)))
