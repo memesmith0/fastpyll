@@ -678,6 +678,14 @@
 ;;
 
 
+
+(use-modules (ice-9 textual-ports)   ;; for get-string-all, open-input-string
+             (ice-9 eval-string))     ;; provides eval-string
+
+
+
+
+
 (define indent (lambda (x)
 		 (if (= x 0)
 		     ""
@@ -1090,11 +1098,6 @@
 		  y)))
 
 
-(define range (lambda (x y)
-		(string-append
-		 x
-		 ":"
-		 y)))
 
 (define delete-element (lambda (x)
 			 (string-append
@@ -1207,7 +1210,7 @@
   (lambda (b counter x)
     (cond
 
-     ;;;(add-indentation #t ((foo bar) foo .. ...))
+
      ((and b (list? (car x)) (> (length x) 1))
 
       (append (add-indentation #t counter (car x)) (let ((foo (add-indentation #f counter (cdr x))))
@@ -1217,7 +1220,7 @@
 
       )
 
-     ;;;(add-indentation #f ((foo bar) foo ....))
+
      ((and (not b) (list? (car x)) (> (length x) 1))
 
       (append (list (add-indentation #t counter (car x))) (let (( foo(add-indentation #f counter (cdr x))))
@@ -1229,7 +1232,7 @@
       )
 
 
-	  ;;; (add-indentation #t (foo bar foo ...)
+
 	  ((and  b (not (list? (car x))) (> (length x) 1))
 
 	   (append (list (car x))
@@ -1247,7 +1250,7 @@
 	   )
 
 
-	  ;;; (add-indentation #t ((foo bar))
+
 	  ((and b (list? (car x)) (not (> (length x) 1))) 
 
 	   (list (add-indentation #t counter (car x)))
@@ -1255,7 +1258,7 @@
 	  )
 
 	  
-	  ;;; (add-indentation #f (foo bar ....)
+
 	  ((and (not b) (not (list? (car x))) (> (length x) 1))
 
 	   (append (list (car x)) (let ((foo (add-indentation #f counter (cdr x))))
@@ -1267,17 +1270,17 @@
 	   )
 
 	  
-	  ;;; (add-indentation #f ((foo bar))
+
 	  ((and (not b) (list? (car x)) (not (> (length x) 1)))
 
 	   (list (add-indentation #t counter (car x)))
 
 	   )
 
-	  ;;; (add-indentatioon #t (foo)
+
 	  ((and  b (not (list? (car x))) (not (> (length x) 1))) (car x))
 
-	  ;;; (add-indentation #f (foo)
+
 	  ((and (not b) (not (list? (car x))) (not (> (length x) 1))) (car x))
 	  )
     )
@@ -1287,8 +1290,7 @@
 	  						  
 (define fastpyll
   (lambda (x)
-  (display
-   (eval (add-indentation #t 1
+   (display (eval (add-indentation #t 1
 			  x) (interaction-environment)))))
 
 
@@ -1300,27 +1302,30 @@
 		 "yield "
 		 x)))
 (define break "break")
-  
-				    
 
-(fastpyll
- '(def  "fizzbuzz" (list "n")
-	    (list
-         (for   "i" (call "range" (list "1" (add "n" "1")))
-		       (list
-                (pif    (pand (equal "0" (modulo "i" "3"))
-			                 (equal "0" (modulo "i" "5")))
-			           (list (call "print" (list (string "fizzbuzz")))))
-		   (pelif   (equal "0" (modulo "i" "3"))
-			  (list (call "print" (list (string "fizz")))))
-		   (pelif   (equal "0" (modulo "i" "5"))
-			  (list (call "print" (list (string "buzz")))))
-		   (pelse 
-		    (list (call "print" (list "i")))))))))
+
+(load "/dev/stdin")
 
 
 
+;(display (fastpyll
+; '(def  "fizzbuzz" (list "n")
+;	    (list
+;         (for   "i" (call "range" (list "1" (add "n" "1")))
+;		       (list
+;                (pif    (pand (equal "0" (modulo "i" "3"))
+;			                 (equal "0" (modulo "i" "5")))
+;			           (list (call "print" (list (string "fizzbuzz")))))
+;		   (pelif   (equal "0" (modulo "i" "3"))
+;			  (list (call "print" (list (string "fizz")))))
+;		   (pelif   (equal "0" (modulo "i" "5"))
+;			  (list (call "print" (list (string "buzz")))))
+;		   (pelse 
+;		    (list (call "print" (list "i")))))))))
 
+;
+;
+;)
 	      
 
 		 
@@ -1338,4 +1343,5 @@
 ;
 ;# Example usage:
 ;fizzbuzz(15)
+
 
