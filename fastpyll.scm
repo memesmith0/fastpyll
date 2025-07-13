@@ -1020,6 +1020,9 @@
 	       " ]"
 	       )))
 
+
+
+
 (define plength (lambda (x)
 		  (call "len" x)))
 
@@ -1106,8 +1109,18 @@
 (define access (lambda (x y)
 		 (string-append
 		  x
+		  "[ "
+		  y
+		  " ]"
+		  )))
+
+
+(define dot (lambda (x y)
+		 (string-append
+		  x
 		  "."
-		  y)))
+		  y
+		  )))
 
 
 
