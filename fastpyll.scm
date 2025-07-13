@@ -797,12 +797,22 @@
 			     (helper d z))))
 
 
-(define except (lambda (d x y z)
+
+
+(define except-as (lambda (d x y z)
 	      (string-append 
 			     "except "
 			     x
 			     " as "
 			     y
+			     ":\n\n"
+			     (helper d z))))
+
+
+(define except (lambda (d x z)
+	      (string-append 
+			     "except "
+			     x
 			     ":\n\n"
 			     (helper d z))))
 
@@ -1320,6 +1330,7 @@
 		(string-append
 		 "yield "
 		 x)))
+
 (define break "break")
 
 
