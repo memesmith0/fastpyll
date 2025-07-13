@@ -692,13 +692,15 @@
 		     (string-append "    " (indent (- x 1))))))
 
 (define intersperse (lambda (x)
+		      (if (= (length x) 0)
+			  ""
 		      (if (> (length x) 1)
 			  (string-append (car x) " , " (intersperse (cdr x)))
-			  (car x))))
+			  (car x)))))
 
 (define helper (lambda (d x)
 		 (if (pair? x)
-		     (string-append (indent d) (car x) "\n" (helper d (cdr x)))
+		     (string-append (indent d) (car x) "\n\n" (helper d (cdr x)))
   "")))
 				
 (define def (lambda (d x y z)
