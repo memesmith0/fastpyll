@@ -1223,10 +1223,10 @@
 
      ((and (not b) (list? (car x)) (> (length x) 1))
 
-      (append (list (add-indentation #t counter (car x))) (let (( foo(add-indentation #f counter (cdr x))))
+      (append (list (add-indentation #t counter (car x))) (let ((foo (add-indentation #f counter (cdr x))))
 						     (if (list? foo)
 							 foo
-							 (list))))
+							 (list foo))))
       
 
       )
@@ -1292,18 +1292,22 @@
 ;  (lambda (x)
 ;  (display x)))
 
-  (define fastpyll
-  (lambda (x)
-    (if (> (length x) 0) 
-	(begin 
-   (display (eval (add-indentation #t 1
-				   (car x)) (interaction-environment)))
-   (display "\n\n")
-      (if (> (length x) 0) (fastpyll (cdr x)) 0)
-      
-      0)
+;(define fastpyll
+;  (lambda (x)
+;  (display
+					;   (add-indentation #t 1 x))))
 
-	0)))
+
+
+(define fastpyll-helper
+  (lambda (x)
+  (begin
+  (display (eval (add-indentation #t 1 x) (interaction-environment)))
+  (display "\n\n"))))
+
+(define fastpyll
+  (lambda (x)
+    (map fastpyll-helper x)))
 
 
 
