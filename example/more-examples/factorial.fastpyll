@@ -1,0 +1,36 @@
+;; Define the factorial function that calculates the factorial of a number.
+;; It takes a single argument 'n'.
+(def "factorial"
+  (list "n")
+  (list
+    ;; Base case: If n is 0, return 1 (0! = 1).
+    (pif (equal "n" "0")
+      (list
+        (return (list "1"))))
+
+    ;; Recursive case: Else, return n * factorial(n-1).
+    (pelse
+      (list
+        (return (list (multiply "n" (call "factorial" (list (subtract "n" "1"))))))))
+  )
+)
+
+;; Define a function to print the factorials for a range of numbers.
+(def "print_factorials"
+  (list "limit")
+  (list
+    (for "i" (range (list "0" (add "limit" "1")))
+      (list
+        (assign "fact_num" (call "factorial" (list "i")))
+        (call "print" (list (fstring "Factorial({i}): {fact_num}")))))
+  )
+)
+
+;; This block ensures that print_factorials is called when the script is executed directly.
+;; Its equivalent to Pythons if __name__ == __main__:
+(pif (equal "__name__" (string "__main__"))
+  (list
+    ;; Call the function to print factorials for numbers from 0 to 10.
+    (call "print_factorials" (list "10"))
+  )
+)
