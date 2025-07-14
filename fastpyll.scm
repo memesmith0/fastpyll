@@ -1154,12 +1154,18 @@
    ": "
    y)))
 
+(define tilda (lambda (x)
+		(string-append
+		 "~" x)))
+
 (define set-intersection
   (lambda (x y)
   (string-append
    x
    " & "
    y)))
+
+(define break "break")
 
 (define set-union
   (lambda (x y)
@@ -1202,7 +1208,13 @@
 
 
 
+(define global
+  (lambda (x)
+    (string-append
+     "global "
+     x)))
 
+(define pass "pass")
 	     
 (define self "self")
 
