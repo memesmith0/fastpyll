@@ -1,0 +1,59 @@
+;; Define the reverse_list function that reverses a given list.
+;; It takes a single argument 'input_list'.
+(def "reverse_list"
+  (list "input_list")
+  (list
+    ;; Initialize an empty list to store the reversed elements.
+    ;; Corrected: (list) is replaced with (list "") for an empty list literal.
+    (assign "reversed_list" (array (list "")))
+
+    ;; Get the length of the input list.
+    ;; We assume a 'len' function exists in your language for getting list length,
+    ;; which maps to Python's len().
+    (assign "list_length" (call "len" (list "input_list")))
+
+    ;; Iterate through the input list from the last element to the first.
+    ;; The 'range' function here is used with three arguments:
+    ;; start (list_length - 1), stop (-1 to include 0), and step (-1 for reverse).
+    (for "i" (range (list (subtract "list_length" "1") "-1" "-1"))
+      (list
+        ;; Append the current element from the input_list to the reversed_list.
+        ;; We assume an 'append' method is available for lists via dot notation,
+        ;; which maps to Python's list.append().
+        (call (dot "reversed_list" "append") (list (access "input_list" "i")))
+      )
+    )
+    ;; Return the newly created reversed list.
+    (return (list "reversed_list"))
+  )
+)
+
+;; This block ensures that the demo is run when the script is executed directly.
+;; Its equivalent to Pythons if __name__ == __main__:
+(pif (equal "__name__" (string "__main__"))
+  (list
+    ;; Define an example list with various string elements.
+    (assign "my_example_list" (array (list (string "apple") (string "banana") (string "cherry") (string "date"))))
+
+    ;; Call the reverse_list function to reverse the example list.
+    (assign "reversed_example_list" (call "reverse_list" (list "my_example_list")))
+
+    ;; Print the original and reversed lists to demonstrate the functionality.
+    ;; Corrected: fstring content is now directly the fstring literal.
+    (call "print" (list (fstring "Original list: {my_example_list}")))
+    (call "print" (list (fstring "Reversed list: {reversed_example_list}")))
+
+    ;; Test with an empty list to ensure it handles edge cases correctly.
+    ;; Corrected: (list) is replaced with (list "") for an empty list literal.
+    (assign "empty_list" (array (list "")))
+    (assign "reversed_empty_list" (call "reverse_list" (list "empty_list")))
+    (call "print" (list (fstring "Original empty list: {empty_list}")))
+    (call "print" (list (fstring "Reversed empty list: {reversed_empty_list}")))
+
+    ;; Test with a single-element list.
+    (assign "single_element_list" (array (list (string "single"))))
+    (assign "reversed_single_element_list" (call "reverse_list" (list "single_element_list")))
+    (call "print" (list (fstring "Original single-element list: {single_element_list}")))
+    (call "print" (list (fstring "Reversed single-element list: {reversed_single_element_list}")))
+  )
+)
