@@ -1,4 +1,4 @@
-;;/*
+ ;;/*
 ;;
 ;;                    GNU GENERAL PUBLIC LICENSE
 ;;                       Version 3, 29 June 2007
@@ -890,42 +890,55 @@
 
 (define add (lambda (x y)
 	      (string-append
+	       "( "
 	       x
 	       " + "
-	       y)))
+
+	       y " )")))
 
 
 (define subtract (lambda (x y)
-	      (string-append
+		   (string-append
+		    "( "
 	       x
 	       " - "
-	       y)))
+
+	       y " )")))
 
 
 (define multiply (lambda (x y)
-	      (string-append
+		   (string-append
+		    "( "
 	       x
 	       " * "
-	       y)))
+	       
+	       y
+	       " )")))
 
 
 (define divide (lambda (x y)
-	      (string-append
+		 (string-append
+		  "( "
 	       x
 	       " / "
-	       y)))
+	       y
+	       " )")))
 
-(define floor-divide (lambda (x y)
-	      (string-append
+(define integer-divide (lambda (x y)
+			 (string-append
+			  "( "
 	       x
 	       " // "
-	       y)))
+	       y
+	       " )")))
 
 (define exponentiate (lambda (x y)
-	      (string-append
+		       (string-append
+			"( "
 	       x
 	       " ** "
-	       y)))
+	       y
+	       " )")))
 
 
 (define group (lambda (x)
@@ -939,8 +952,9 @@
 
   (define pnot (lambda (x)
 		 (string-append
+		  "( "
 		  "not "
-		  x)))
+		  x " )")))
 
   (define true "True")
   
@@ -967,50 +981,60 @@
 			     (helper d z))))
 
 (define equal (lambda (x y)
-	      (string-append
+		(string-append
+		 "( "
 	       x
 	       " == "
-	       y)))
+	       y " )")))
 
 
 (define modulo (lambda (x y)
-	      (string-append
+		 (string-append
+		  "( "
 	       x
 	       " % "
-	       y)))
+	       y
+	       " )")))
 
 
 (define pand (lambda (x y)
-	      (string-append
+	       (string-append
+		"( "
 	       x
 	       " and "
-	       y)))
+	       y ") ")))
 
 
 
 (define less-than (lambda (x y)
-	      (string-append
+		    (string-append
+		     "( "
 	       x
 	       " < "
-	       y)))
+	       y
+
+	       " )")))
 
 
 (define greater-than (lambda (x y)
-	      (string-append
+		       (string-append
+			"( "
 	       x
 	       " > "
-	       y)))
+	       y " )")))
 
 (define less-than-or-equal-to (lambda (x y)
-	      (string-append
+				(string-append
+				 "( "
 	       x
 	       " <= "
-	       y)))
+	       y " )")))
 (define greater-than-or-equal-to (lambda (x y)
-	      (string-append
+				   (string-append
+				    "( "
 	       x
 	       " >= "
-	       y)))
+	       y " )")))
 
 
 (define array (lambda (x)
@@ -1036,25 +1060,29 @@
 
 
 (define assign (lambda (x y)
-		(string-append
+		 (string-append
+
 	       x
 	       " = "
 	       y
+
 	       )))
 
 
 (define not-equal (lambda (x y)
-	      (string-append
+		    (string-append
+		     "( "
 	       x
 	       " != "
-	       y)))
+	       y " )")))
 
 
 (define por (lambda (x y)
 	      (string-append
+	       "( "
 	       x
 	       " or "
-	       y)))
+	       y " )")))
 
 
 
@@ -1069,9 +1097,10 @@
 
 (define is (lambda (x y)
 	     (string-append
+	      "( "
 	      x
 	      " is "
-	      y)))
+	      y " )")))
 
 
 
@@ -1098,12 +1127,18 @@
 (define input (lambda (x) (call "input" x)))
 
 (define ternary-operation (lambda (x y z)
-		  (string-append
-		   x
-		   " if "
-		   y
-		   " else "
-		   z)))
+			    (string-append
+			     "( "
+			     x
+			     " )"
+			     " if "
+			     "( "
+			     y
+			     " )"
+			     " else "
+			     "( "
+		   
+		   z " )")))
 
 
 (define access (lambda (x y)
@@ -1121,6 +1156,7 @@
 		  "."
 		  y
 		  )))
+
 
 
 
@@ -1144,9 +1180,12 @@
 
 (define in (lambda (x y)
 	     (string-append
+	      "( "
 	      x
+	      " )"
 	      " in "
-	      y)))
+	      "( "
+	      y " )")))
 
 (define key (lambda (x y)
   (string-append
@@ -1156,23 +1195,26 @@
 
 (define tilda (lambda (x)
 		(string-append
-		 "~" x)))
+		 "~"  "( " x " )")))
 
 (define set-intersection
   (lambda (x y)
-  (string-append
+    (string-append
+     "( "
    x
    " & "
-   y)))
+   y " )")))
 
 (define break "break")
 
 (define set-union
   (lambda (x y)
-  (string-append
-   x
+    (string-append
+     "( "
+     x
+
    " | "
-   y)))
+   y      " )")))
 
 (define set-difference
   subtract)
@@ -1181,29 +1223,43 @@
 (define set-symmetric-difference
   (lambda (x y)
     (string-append
+     "( "
      x
      " ^ "
-     y)))
+     y " )")))
 
 
 (define set-is-superset
     (lambda (x y)
-    (string-append
+      (string-append
+       "( "
      x
      " >= "
-     y)))
+     y " )")))
 
 
 
 (define set-is-subset
     (lambda (x y)
-    (string-append
+      (string-append
+       "( "
      x
      " <= "
-     y)))
+     y " )")))
 
 (define range (lambda (x)
 		(call "range" x)))
+
+(define curry
+
+  (lambda (x)
+		      (if (= (length x) 0)
+			  ""
+		      (if (> (length x) 1)
+			  (string-append (car x) " " (curry (cdr x)))
+			  (car x)))))
+
+		 
 
 
 
@@ -1398,5 +1454,6 @@
 ;
 ;# Example usage:
 ;fizzbuzz(15)
+
 
 
