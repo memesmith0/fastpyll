@@ -1,4 +1,4 @@
-;;/*
+ ;;/*
 ;;
 ;;                    GNU GENERAL PUBLIC LICENSE
 ;;                       Version 3, 29 June 2007
@@ -796,7 +796,7 @@
 (define for (lambda (d x . y) (string-append "for " x ":\n\n" (helper d y))))
 
 (define pdef (lambda (d x a . y) (begin
-				  (eval `(define ,(string->symbol x) (lambda ( . z) (apply call (append (cons ,x z ))))) (interaction-environment))
+				  (if (= d "1") (eval `(define ,(string->symbol x) (lambda ( . z) (apply call (append (cons ,x z ))))) (interaction-environment)))
 				  (string-append "def " x "( " (apply arguments a) " ):\n\n" (helper d y)))))
 (define while (lambda (d x . y) (string-append "while " x ":\n\n" (helper d y))))
 (define pif (lambda (d x . y) (string-append "if " x ":\n\n" (helper d y))))
