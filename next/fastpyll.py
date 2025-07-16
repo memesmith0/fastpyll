@@ -794,7 +794,19 @@
 
 
 (define for (lambda (d x . y) (string-append "for " x ":\n\n" (helper d y))))
-(define def (lambda (d x a . y) (string-append "def " x "( " (apply arguments a) " ):\n\n" (helper d y))))
+(define def (lambda (d x a . y) (begin
+;;;;;;;;;;;;;;;;;;
+				  ;;;;;;;;;;;;;;;;;;;;;;;
+				  ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+				  ;;;;;;;;;;;;;;;;;;;;;;;
+				  ;;;;;;;;;;;;;;;;;;;;;;;;;;
+				  ;;;;;;;;;;;;;;;;;;;;;;;;;;
+				  ;;;;;;;;;;;;;;;;;;;;;;;;
+				  ;;;;;;;;;;;;;;;;;;;;;
+;				  need to get this working
+;				  (define (string->symbol x) (lambda ( . a) (apply call (append (list x) a))))
+				  (string-append "def " x "( " (apply arguments a) " ):\n\n" (helper d y)))))
+
 (define while (lambda (d x . y) (string-append "while " x ":\n\n" (helper d y))))
 (define pif (lambda (d x . y) (string-append "if " x ":\n\n" (helper d y))))
 (define else_if (lambda (d x . y) (string-append "else_if " x ":\n\n" (helper d y))))
