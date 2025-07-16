@@ -721,7 +721,8 @@
 			      (if (and (symbol? (car x))
 				       (or
 
-				       (eq? (car x) 'codeblock)
+					(eq? (car x) 'codeblock)
+					(eq? (car x) 'def)
 				       (eq? (car x) 'print)
 				       (eq? (car x) 'while)
 				       (eq? (car x) 'pif)
@@ -781,7 +782,7 @@
 
 
 (define for (lambda (d x . y) (string-append "for " x ":\n\n" (helper d y))))
-(define def (lambda (d x a . y) (string-append "def " x "( " a " )" ":\n\n" (helper d y))))
+(define def (lambda (d x a . y) (string-append "def " x "( " (apply arguments a) " ):\n\n" (helper d y))))
 (define while (lambda (d x . y) (string-append "while " x ":\n\n" (helper d y))))
 (define pif (lambda (d x . y) (string-append "if " x ":\n\n" (helper d y))))
 (define else_if (lambda (d x . y) (string-append "else_if " x ":\n\n" (helper d y))))
