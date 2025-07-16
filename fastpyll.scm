@@ -682,631 +682,103 @@
 (use-modules (ice-9 textual-ports)   ;; for get-string-all, open-input-string
              (ice-9 eval-string))     ;; provides eval-string
 
+;(define curry string-append)
 
+(define indent (lambda (x) (if (= x 0) "" (string-append "    " (indent (- x 1))))))
 
+(define curry (lambda (. x) (if (= (length x) 0) "" (if (> (length x) 1) (curry (car x) " " (curry (cdr x))) (car x)))))
 
+(define helper (lambda (d x) (if (pair? x) (string-append (indent d) (car x) "\n\n" (helper d (cdr x))) "")))
 
-(define indent (lambda (x)
-		 (if (= x 0)
-		     ""
-		     (string-append "    " (indent (- x 1))))))
+(define codeblock (lambda (d x . y) (string-append x ":\n\n" (helper d y))))
 
-(define intersperse (lambda (x)
-		      (if (= (length x) 0)
-			  ""
-		      (if (> (length x) 1)
-			  (string-append (car x) " , " (intersperse (cdr x)))
-			  (car x)))))
+;(define pgroup (lambda (left right . x) (apply string-append (append (list left) x (list right )))))
 
-(define helper (lambda (d x)
-		 (if (pair? x)
-		     (string-append (indent d) (car x) "\n\n" (helper d (cdr x)))
-  "")))
-				
-(define def (lambda (d x y z)
-	      (string-append 
-			     "def "
-			     x
-			     "( "
-			     (intersperse y)
-			     " ):\n\n"
-			     (helper d z))))
+;(define group (lambda (. x) (apply pgroup (append (list "( " " )") x))))
 
 
 
-(define class (lambda (d x z)
-	      (string-append 
-			     "class "
-			     x
-			     ":\n\n"
-			     (helper d z))))
+(define unary_operation (lambda (x y) (group x y)))
 
 
-				
-(define match (lambda (d y z)
-	      (string-append 
-			     "match "
-			     y
-			     ":\n\n"
-			     (helper d z))))
 
+(define dictionary (lambda (x) (pgroup (append (list "( " " )") x))))
 
-(define case (lambda (d y z)
-	      (string-append 
-			     "case "
-			     y
-			     ":\n\n"
-			     (helper d z))))
+;(define array (lambda (. x) (apply pgroup (append (list "[" "]") (arguments x)))))
 
 
 
-(define for (lambda (d x y z)
-	      (string-append 
-			     "for "
-			     x
-			     " in "
-			     y
-			     ":\n\n"
-			     (helper d z))))
+(define string (lambda (x) (string-append "\"" x "\"")))
 
+(define fstring (lambda (x) (string-append "f" (string x))))
 
+(define comment (lambda (x) (curry "#" x "\n\n")))
 
-(define plambda (lambda (x y)
-	      (string-append 
-			     "lambda "
-			     x
-			     ": "
-			     y)))
+(define key (lambda (x y) (curry x ": " y)))
 
+(define check_for_structure (lambda (x)
+			      (if (and (symbol? (car x))
+				       (eq? (car x) 'codeblock)
+				       )
+				  #t
+				  #f
+				  )
+			      )
+  )
 
-(define import-from
-  (lambda (x y)
-    (string-append
-     "from "
-     x
-     " import "
-     y)))
+	(define import (lambda (x) (string-append "import " x)))
+	(define assign (lambda (x y) (string-append x " = " y)))
+	(define none "None")
+	(define pgroup (lambda (left right . x) (apply string-append (append (list left) (arguments x) (list right )))))
+	(define group (lambda (. x) (apply pgroup (append (list "( " " )") x))))
+	(define arguments (lambda x (if (= (length x) 1) (car x) (if (> (length x) 1) (string-append (car x) " , " (apply arguments (cdr x)))""))))
+	(define array (lambda (. x) (apply pgroup (list "[ " " ]" (apply arguments x)))))
+	(define call (lambda (x . y) (string-append x "( " (apply arguments y) " )")))
+	(define in (lambda (x y) (string-append x " in " y)))
+	(define for (lambda (x) (string-append "for " x)))
+	(define range (lambda ( . x) (apply call (append (list "range") x))))
+	(define a (lambda ( x  y ) (string-append x (array y))))
+	(define d (lambda ( x  y ) (string-append x "." y)))
+	(define pappend (lambda (x y) (call (d x "append") y)))
+	(define def (lambda (a . b) (string-append "def " (apply call (append (list a) b)))))
+	(define true "True")
+	(define false "False")
+	(define none "None")
+	(define while (lambda (x) (string-append "while " x)))
+	(define pif (lambda (x) (string-append "if " x)))
+	(define pelif (lambda (x) (string-append "elif " x)))
+	(define pelse (lambda (. x) "else"))
+	(define binary_operation (lambda (operation x y) (group x " " operation " "  y)))
+	(define equal (lambda (x y) (binary_operation "==" x y)))
+	(define subtract (lambda (x y) (binary_operation "-" x y)))
+	(define integer-divide (lambda (x y) (binary_operation "//" x y)))
+	(define float-divide (lambda (x y) (binary_operation "/" x y)))
+	(define multiply (lambda (x y) (binary_operation "*" x y)))
 
+	(define add (lambda (x y) (binary_operation "+" x y)))
+	(define pand (lambda (x y) (binary_operation "and" x y)))
+	(define por (lambda (x y) (binary_operation "or" x y)))
+	(define not_equal (lambda (x y) (binary_operation "!=" x y)))
+	(define pnot (lambda (x) (string-append "( " "not " x " )")))
+	(define tilda (lambda (x) (string-append "~" "( " x " )")))
+	(define set_intersection (lambda (x y) (binary_operation "&" x y)))
+	(define set_union (lambda (x y) (binary_operation "|" x y)))
+	(define global (lambda ( . y) (string-append "global " (apply arguments y))))
+	(define return (lambda ( . a ) (apply string-append "return " (arguments a))))
+	(define try (lambda ( . a ) (string-append "try " (apply arguments a))))
+	(define except (lambda ( . a ) (string-append "except " (apply arguments a))))
+	(define finally (lambda ( . a ) (string-append "finally" (apply arguments a))))
+	(define print (lambda ( . a ) (apply call (append (list "print") a))))
 
-(define import-as
-  (lambda (x y)
-    (string-append
-     "import "
-     x
-     " as "
-     y)))
 
-(define call (lambda (x y)
-	       (string-append
-		x
-		"( "
-		(intersperse y)
-		" )"
-		)))
-
-
-(define directory (lambda (x) (call "dir" x)))
-			     
-
-
-(define while (lambda (d x z)
-	      (string-append 
-			     "while "
-			     x
-			     ":\n\n"
-			     (helper d z))))
-
-
-
-
-(define except-as (lambda (d x y z)
-	      (string-append 
-			     "except "
-			     x
-			     " as "
-			     y
-			     ":\n\n"
-			     (helper d z))))
-
-
-(define except (lambda (d x z)
-	      (string-append 
-			     "except "
-			     x
-			     ":\n\n"
-			     (helper d z))))
-
-
-(define try (lambda (d z)
-	      (string-append 
-			     "try"
-			     ":\n\n"
-			     (helper d z))))
-
-
-(define finally (lambda (d z)
-	      (string-append 
-			     "finally"
-			     ":\n\n"
-			     (helper d z))))
-
-
-(define with (lambda (d x y z)
-	      (string-append 
-	       "with "
-	       x
-	       " as "
-	       y
-			     ":\n\n"
-			     (helper d z))))
-
-(define import (lambda (x)
-		 (string-append
-		 "import "
-		 x
-		 )))
-
-
-(define iterate (lambda (x) (call "iter" x)))
-
-(define next (lambda (x) (call "next" x)))
-
-(define plist (lambda (x) (call "list" x)))
-
-
-(define variable-arguments
-  (lambda (x) (call "varargs" x)))
-
-
-(define raise (lambda (x)
-		(string-append
-		 "raise " x)))
-
-(define return
-  (lambda (x)
-    (string-append
-     "return "
-     (intersperse x))))
-
-(define nonlocal (lambda (x)
-		   (string-append
-		    "nonlocal "
-		    x)))
-
-
-(define pmap
-  (lambda (x)
-    (call "map" x)))
-
-
-(define filter
-  (lambda (x)
-    (call "filter" x)))
-     
-
-(define index-error (lambda (x)
-		     (call "IndexError" x)))
-
-
-(define add (lambda (x y)
-	      (string-append
-	       "( "
-	       x
-	       " + "
-
-	       y " )")))
-
-
-(define subtract (lambda (x y)
-		   (string-append
-		    "( "
-	       x
-	       " - "
-
-	       y " )")))
-
-
-(define multiply (lambda (x y)
-		   (string-append
-		    "( "
-	       x
-	       " * "
-	       
-	       y
-	       " )")))
-
-
-(define divide (lambda (x y)
-		 (string-append
-		  "( "
-	       x
-	       " / "
-	       y
-	       " )")))
-
-(define integer-divide (lambda (x y)
-			 (string-append
-			  "( "
-	       x
-	       " // "
-	       y
-	       " )")))
-
-(define exponentiate (lambda (x y)
-		       (string-append
-			"( "
-	       x
-	       " ** "
-	       y
-	       " )")))
-
-
-(define group (lambda (x)
-		(string-append
-		 "( "
-	       x
-
-	       " )"
-	       )
-		))
-
-  (define pnot (lambda (x)
-		 (string-append
-		  "( "
-		  "not "
-		  x " )")))
-
-  (define true "True")
-  
-  (define false "False")
-
-
-(define pif (lambda (d x z)
-	      (string-append 
-			     "if "
-			     x
-			     ":\n\n"
-			     (helper d z))))
-
-(define pelif (lambda (d x z)
-	      (string-append 
-			     "elif "
-			     x
-			     ":\n\n"
-			     (helper d z))))
-
-(define pelse (lambda (d z)
-	      (string-append 
-			     "else:\n\n"
-			     (helper d z))))
-
-(define equal (lambda (x y)
-		(string-append
-		 "( "
-	       x
-	       " == "
-	       y " )")))
-
-
-(define modulo (lambda (x y)
-		 (string-append
-		  "( "
-	       x
-	       " % "
-	       y
-	       " )")))
-
-
-(define pand (lambda (x y)
-	       (string-append
-		"( "
-	       x
-	       " and "
-	       y ") ")))
-
-
-
-(define less-than (lambda (x y)
-		    (string-append
-		     "( "
-	       x
-	       " < "
-	       y
-
-	       " )")))
-
-
-(define greater-than (lambda (x y)
-		       (string-append
-			"( "
-	       x
-	       " > "
-	       y " )")))
-
-(define less-than-or-equal-to (lambda (x y)
-				(string-append
-				 "( "
-	       x
-	       " <= "
-	       y " )")))
-(define greater-than-or-equal-to (lambda (x y)
-				   (string-append
-				    "( "
-	       x
-	       " >= "
-	       y " )")))
-
-
-(define array (lambda (x)
-		(string-append
-		 "[ "
-	       (intersperse x)
-	       " ]"
-	       )))
-
-
-
-
-(define plength (lambda (x)
-		  (call "len" x)))
-
-
-(define object (lambda (x)
-		(string-append
-		 "{ "
-	       (intersperse x)
-	       " }"
-	       )))
-
-
-(define assign (lambda (x y)
-		 (string-append
-
-	       x
-	       " = "
-	       y
-
-	       )))
-
-
-(define not-equal (lambda (x y)
-		    (string-append
-		     "( "
-	       x
-	       " != "
-	       y " )")))
-
-
-(define por (lambda (x y)
-	      (string-append
-	       "( "
-	       x
-	       " or "
-	       y " )")))
-
-
-
-(define string (lambda (x)
-	      (string-append
-	       "\""
-	       x
-	       "\""
-	       )))
-
-(define none "None")
-
-(define is (lambda (x y)
-	     (string-append
-	      "( "
-	      x
-	      " is "
-	      y " )")))
-
-
-
-(define fstring (lambda (x)
-	      (string-append
-	       "f\""
-	       x
-	       "\""
-	       )))
-
-(define print (lambda (x) (call "print" x)))
-
-(define enumerate (lambda (x) (call "enumerate" x)))
-
-
-(define bool (lambda (x) (call "bool" x)))
-
-(define set (lambda (x) (call "set" x)))
-
-(define negate (lambda (x) (string-append
-			    "-"
-			    x)))
-
-(define input (lambda (x) (call "input" x)))
-
-(define ternary-operation (lambda (x y z)
-			    (string-append
-			     "( "
-			     x
-			     " )"
-			     " if "
-			     "( "
-			     y
-			     " )"
-			     " else "
-			     "( "
-		   
-		   z " )")))
-
-
-(define access (lambda (x y)
-		 (string-append
-		  x
-		  "[ "
-		  y
-		  " ]"
-		  )))
-
-
-(define dot (lambda (x y)
-		 (string-append
-		  x
-		  "."
-		  y
-		  )))
-
-
-
-
-(define delete-element (lambda (x)
-			 (string-append
-			  "del "
-			  x)))
-
-(define type (lambda (x)
-	       (call "type" x)))
-
-(define unpack intersperse)
-
-(define dictionary object)
-
-(define comment (lambda (x)
-		  (string-append
-		   "#"
-		   x
-		   "\n")))
-
-(define in (lambda (x y)
-	     (string-append
-	      "( "
-	      x
-	      " )"
-	      " in "
-	      "( "
-	      y " )")))
-
-(define key (lambda (x y)
-  (string-append
-   x
-   ": "
-   y)))
-
-(define tilda (lambda (x)
-		(string-append
-		 "~"  "( " x " )")))
-
-(define set-intersection
-  (lambda (x y)
-    (string-append
-     "( "
-   x
-   " & "
-   y " )")))
-
-(define break "break")
-
-(define set-union
-  (lambda (x y)
-    (string-append
-     "( "
-     x
-
-   " | "
-   y      " )")))
-
-(define set-difference
-  subtract)
-
-
-(define set-symmetric-difference
-  (lambda (x y)
-    (string-append
-     "( "
-     x
-     " ^ "
-     y " )")))
-
-
-(define set-is-superset
-    (lambda (x y)
-      (string-append
-       "( "
-     x
-     " >= "
-     y " )")))
-
-
-
-(define set-is-subset
-    (lambda (x y)
-      (string-append
-       "( "
-     x
-     " <= "
-     y " )")))
-
-(define range (lambda (x)
-		(call "range" x)))
-
-(define curry
-
-  (lambda (x)
-		      (if (= (length x) 0)
-			  ""
-		      (if (> (length x) 1)
-			  (string-append (car x) " " (curry (cdr x)))
-			  (car x)))))
-
-		 
-
-
-
-
-(define global
-  (lambda (x)
-    (string-append
-     "global "
-     x)))
-
-(define pass "pass")
-	     
-(define self "self")
-
-(define check-for-structure (lambda (x)
-			    (if (and (symbol? (car x))
-					 (or (eq? (car x) 'def)
-					     (eq? (car x) 'for)
-					     (eq? (car x) 'pif)
-					     (eq? (car x) 'pelif)
-					     (eq? (car x) 'match)
-					     (eq? (car x) 'case)
-					     (eq? (car x) 'while)
-					     (eq? (car x) 'except)
-					     (eq? (car x) 'try)
-					     (eq? (car x) 'with)
-					     (eq? (car x) 'class)
-					     (eq? (car x) 'finally)
-					     (eq? (car x) 'pelse)))
-
-				#t
-				#f)))
-
-
-
-
-
-
-
-(define add-indentation
+(define add_indentation
   (lambda (b counter x)
     (cond
 
 
      ((and b (list? (car x)) (> (length x) 1))
 
-      (append (add-indentation #t counter (car x)) (let ((foo (add-indentation #f counter (cdr x))))
+      (append (add_indentation #t counter (car x)) (let ((foo (add_indentation #f counter (cdr x))))
 						     (if (list? foo)
 							 foo
 							 (list foo))))
@@ -1316,66 +788,66 @@
 
      ((and (not b) (list? (car x)) (> (length x) 1))
 
-      (append (list (add-indentation #t counter (car x))) (let ((foo (add-indentation #f counter (cdr x))))
-						     (if (list? foo)
-							 foo
-							 (list foo))))
+      (append (list (add_indentation #t counter (car x))) (let ((foo (add_indentation #f counter (cdr x))))
+							    (if (list? foo)
+								foo
+								(list foo))))
       
 
       )
 
 
 
-	  ((and  b (not (list? (car x))) (> (length x) 1))
+     ((and  b (not (list? (car x))) (> (length x) 1))
 
-	   (append (list (car x))
-		   (if (check-for-structure x)
-		       (append (list counter) (let ((foo (add-indentation #f (+ counter 1) (cdr x))))
-						(if (list? foo)
-						    foo
-						    (list foo)))
-			       )
-		       (let ((foo (add-indentation #f counter (cdr x))))
-			 (if (list? foo)
-			     foo
-			     (list foo)))))
-	   
-	   )
-
-
-
-	  ((and b (list? (car x)) (not (> (length x) 1))) 
-
-	   (list (add-indentation #t counter (car x)))
-
-	  )
-
-	  
-
-	  ((and (not b) (not (list? (car x))) (> (length x) 1))
-
-	   (append (list (car x)) (let ((foo (add-indentation #f counter (cdr x))))
-				    (if (list? foo)
-					foo
-					(list foo))))
-	       
-	   
-	   )
-
-	  
-
-	  ((and (not b) (list? (car x)) (not (> (length x) 1)))
-
-	   (list (add-indentation #t counter (car x)))
-
-	   )
+      (append (list (car x))
+	      (if (check_for_structure x)
+		  (append (list counter) (let ((foo (add_indentation #f (+ counter 1) (cdr x))))
+					   (if (list? foo)
+					       foo
+					       (list foo)))
+			  )
+		  (let ((foo (add_indentation #f counter (cdr x))))
+		    (if (list? foo)
+			foo
+			(list foo)))))
+      
+      )
 
 
-	  ((and  b (not (list? (car x))) (not (> (length x) 1))) (car x))
+
+     ((and b (list? (car x)) (not (> (length x) 1))) 
+
+      (list (add_indentation #t counter (car x)))
+
+      )
+
+     
+
+     ((and (not b) (not (list? (car x))) (> (length x) 1))
+
+      (append (list (car x)) (let ((foo (add_indentation #f counter (cdr x))))
+			       (if (list? foo)
+				   foo
+				   (list foo))))
+      
+      
+      )
+
+     
+
+     ((and (not b) (list? (car x)) (not (> (length x) 1)))
+
+      (list (add_indentation #t counter (car x)))
+
+      )
 
 
-	  ((and (not b) (not (list? (car x))) (not (> (length x) 1))) (car x))
-	  )
+     ((and  b (not (list? (car x))) (not (> (length x) 1))) x)
+
+
+     ((and (not b) (not (list? (car x))) (not (> (length x) 1))) (car x))
+     )
     )
   )
 
@@ -1383,77 +855,17 @@
 	  						  
 ;(define fastpyll
 ;  (lambda (x)
-;  (display x)))
+;					  (display (add_indentation #t 1 x))))
 
-;(define fastpyll
-;  (lambda (x)
-;  (display
-					;   (add-indentation #t 1 x))))
-
-
-
-(define fastpyll-helper
+(define fastpyll_helper
   (lambda (x)
   (begin
-  (display (eval (add-indentation #t 1 x) (interaction-environment)))
+  (display (eval (add_indentation #t 1 x) (interaction-environment)))
   (display "\n\n"))))
 
 (define fastpyll
   (lambda (x)
-    (map fastpyll-helper x)))
-
-
-
-(define isinstance (lambda (x) (call "isinstance" x)))
-
-
-(define yield (lambda (x)
-		(string-append
-		 "yield "
-		 x)))
-
-(define break "break")
-
+    (map fastpyll_helper x)))
 
 (load "/dev/stdin")
-
-
-
-;(display (fastpyll
-; '(def  "fizzbuzz" (list "n")
-;	    (list
-;         (for   "i" (call "range" (list "1" (add "n" "1")))
-;		       (list
-;                (pif    (pand (equal "0" (modulo "i" "3"))
-;			                 (equal "0" (modulo "i" "5")))
-;			           (list (call "print" (list (string "fizzbuzz")))))
-;		   (pelif   (equal "0" (modulo "i" "3"))
-;			  (list (call "print" (list (string "fizz")))))
-;		   (pelif   (equal "0" (modulo "i" "5"))
-;			  (list (call "print" (list (string "buzz")))))
-;		   (pelse 
-;		    (list (call "print" (list "i")))))))))
-
-;
-;
-;)
-	      
-
-		 
-;(display (for "x" "y" "baddle" "waddle"))
-;def fizzbuzz(n):
-;    for i in range(1, n + 1):
-;        if i % 3 == 0 and i % 5 == 0:
-;            print("FizzBuzz")
-;        elif i % 3 == 0:
-;            print("Fizz")
-;        elif i % 5 == 0:
-;            print("Buzz")
-;        else:
-;            print(i)
-;
-;# Example usage:
-;fizzbuzz(15)
-
-
 
