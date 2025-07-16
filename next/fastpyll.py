@@ -1,4 +1,4 @@
- ;;/*
+;;/*
 ;;
 ;;                    GNU GENERAL PUBLIC LICENSE
 ;;                       Version 3, 29 June 2007
@@ -722,7 +722,7 @@
 				       (or
 
 					(eq? (car x) 'codeblock)
-					(eq? (car x) 'def)
+					(eq? (car x) 'pdef)
 				       (eq? (car x) 'print)
 				       (eq? (car x) 'while)
 				       (eq? (car x) 'pif)
@@ -794,19 +794,10 @@
 
 
 (define for (lambda (d x . y) (string-append "for " x ":\n\n" (helper d y))))
-(define def (lambda (d x a . y) (begin
-;;;;;;;;;;;;;;;;;;
-				  ;;;;;;;;;;;;;;;;;;;;;;;
-				  ;;;;;;;;;;;;;;;;;;;;;;;;;;;
-				  ;;;;;;;;;;;;;;;;;;;;;;;
-				  ;;;;;;;;;;;;;;;;;;;;;;;;;;
-				  ;;;;;;;;;;;;;;;;;;;;;;;;;;
-				  ;;;;;;;;;;;;;;;;;;;;;;;;
-				  ;;;;;;;;;;;;;;;;;;;;;
-;				  need to get this working
-;				  (define (string->symbol x) (lambda ( . a) (apply call (append (list x) a))))
-				  (string-append "def " x "( " (apply arguments a) " ):\n\n" (helper d y)))))
 
+(define pdef (lambda (d x a . y) (begin
+				  (eval `(define ,(string->symbol x) (lambda ( . z) (apply call (append (cons ,x z ))))) (interaction-environment))
+				  (string-append "def " x "( " (apply arguments a) " ):\n\n" (helper d y)))))
 (define while (lambda (d x . y) (string-append "while " x ":\n\n" (helper d y))))
 (define pif (lambda (d x . y) (string-append "if " x ":\n\n" (helper d y))))
 (define else_if (lambda (d x . y) (string-append "else_if " x ":\n\n" (helper d y))))
@@ -905,7 +896,9 @@
 (define fastpyll_helper
   (lambda (x)
   (begin
-  (display (eval (add_indentation #t 1 x) (interaction-environment)))
+    (display  (eval
+	       (add_indentation #t 1 x)
+	       (interaction-environment)))
   (display "\n\n"))))
 
 (define fastpyll
