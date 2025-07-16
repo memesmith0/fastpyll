@@ -702,7 +702,7 @@
 
 
 
-(define dictionary (lambda (x) (pgroup (append (list "( " " )") x))))
+
 
 ;(define array (lambda (. x) (apply pgroup (append (list "[" "]") (arguments x)))))
 
@@ -755,11 +755,23 @@
 (define a_helper (lambda (x) (string-append "[ " (if (> (length x) 0) (car x) "") " ]" (if (> (length x) 1) (a_helper (cdr x)) ""))))
 (define a (lambda (b . x) (string-append b (a_helper x))))
 (define d (lambda ( . x) (string-append (if (> (length x) 0) (car x) "") (if (> (length x) 1) (string-append "."  (apply d (cdr x))) ""))))
-	(define pappend (lambda (x y) (call (d x "append") y)))
-(define print (lambda ( . a ) (apply call (append (list "print") (list (arguments a))))))
-	(define true "True")
-	(define false "False")
-	(define none "None")
+
+
+(define dictionary_helper (lambda ( . x)
+			    (if (= 0 (length x))
+				""
+		     (if (and (= 0 (modulo (length x) 2)) (> (length x) 1))
+			 (string-append (car x) ": " (car (cdr x))
+					(if (> (length (cdr (cdr x))) 1)
+					(string-append " , " (apply dictionary_helper (cdr (cdr x)))) ""))
+			 (error 'dictionary "wrong number of arguments to dictionary")))))
+
+(define dictionary (lambda ( . x) (string-append "{ " (apply dictionary_helper x) " }")))
+			 (define pappend (lambda (x y) (call (d x "append") y)))
+			 (define print (lambda ( . a ) (apply call (append (list "print") (list (arguments a))))))
+			 (define true "True")
+			 (define false "False")
+			 (define none "None")
 
 	(define binary_operation (lambda (operation x y) (group x " " operation " "  y)))
 	(define equal (lambda (x y) (binary_operation "==" x y)))
