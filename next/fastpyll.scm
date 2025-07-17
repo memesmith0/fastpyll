@@ -700,7 +700,7 @@
 
 (define fastpyll_string (lambda (x) (string-append "\"" x "\"")))
 
-(define fastpyll_fstring (lambda (x) (string-append "f" (string x))))
+(define fastpyll_fstring (lambda (x) (string-append "f" (fastpyll_string x))))
 
 (define fastpyll_comment (lambda (x) (fastpyll_curry "#" x "\n\n")))
 
@@ -712,12 +712,14 @@
 				       (or
 
 					
-					(eq? (car x) 'fastpyll_codeblock)
+
 					(eq? (car x) 'fastpyll_define)
 				       (eq? (car x) 'fastpyll_print)
 				       (eq? (car x) 'fastpyll_while)
-				       (eq? (car x) 'fastpyll_pif)
+				       (eq? (car x) 'fastpyll_if)
 				       (eq? (car x) 'fastpyll_else_if)
+				       (eq? (car x) 'fastpyll_for)
+				       
 				       (eq? (car x) 'fastpyll_else)
 				       (eq? (car x) 'fastpyll_try)
 				       (eq? (car x) 'fastpyll_except)
@@ -737,7 +739,7 @@
 
 	(define fastpyll_import (lambda (x) (string-append "import " x)))
 	(define fastpyll_assign (lambda (x y) (string-append x " = " y)))
-	(define fastpyll_none "None")
+	(define fastpyll_none (lambda () "None"))
 	(define fastpyll_pgroup (lambda (left right . x) (apply string-append (append (list left) (fastpyll_arguments x) (list right )))))
 	(define fastpyll_group (lambda (. x) (apply fastpyll_pgroup (append (list "( " " )") x))))
 	(define fastpyll_arguments (lambda x (if (= (length x) 1) (car x) (if (> (length x) 1) (string-append (car x) " , " (apply fastpyll_arguments (cdr x)))""))))
@@ -763,9 +765,9 @@
 (define fastpyll_dictionary (lambda ( . x) (string-append "{ " (apply fastpyll_dictionary_helper x) " }")))
 (define fastpyll_pappend (lambda (x y) (fastpyll_call (fastpyll_d x "append") y)))
 (define fastpyll_print (lambda ( . a ) (apply fastpyll_call (append (list "print") (list (fastpyll_arguments a))))))
-			 (define fastpyll_true "True")
-			 (define fastpyll_false "False")
-			 (define fastpyll_none "None")
+(define fastpyll_true (lambda () "True"))
+(define fastpyll_false (lambda () "False"))
+(define fastpyll_none (lambda () "None"))
 
 	(define fastpyll_binary_operation (lambda (operation x y) (fastpyll_group x " " operation " "  y)))
 	(define fastpyll_equal (lambda (x y) (fastpyll_binary_operation "==" x y)))
@@ -775,10 +777,10 @@
 	(define fastpyll_multiply (lambda (x y) (fastpyll_binary_operation "*" x y)))
 
 	(define fastpyll_add (lambda (x y) (fastpyll_binary_operation "+" x y)))
-	(define fastpyll_pand (lambda (x y) (fastpyll_binary_operation "and" x y)))
-	(define fastpyll_por (lambda (x y) (fastpyll_binary_operation "or" x y)))
+	(define fastpyll_and (lambda (x y) (fastpyll_binary_operation "and" x y)))
+	(define fastpyll_or (lambda (x y) (fastpyll_binary_operation "or" x y)))
 	(define fastpyll_not_equal (lambda (x y) (fastpyll_binary_operation "!=" x y)))
-	(define fastpyll_pnot (lambda (x) (string-append "( " "not " x " )")))
+	(define fastpyll_not (lambda (x) (string-append "( " "not " x " )")))
 	(define fastpyll_tilda (lambda (x) (string-append "~" "( " x " )")))
 	(define fastpyll_set_intersection (lambda (x y) (fastpyll_binary_operation "&" x y)))
 	(define fastpyll_set_union (lambda (x y) (fastpyll_binary_operation "|" x y)))
@@ -796,7 +798,7 @@
 
 
 (define fastpyll_while (lambda (d x . y) (string-append "while " x ":\n\n" (fastpyll_helper d y))))
-(define fastpyll_pif (lambda (d x . y) (string-append "if " x ":\n\n" (fastpyll_helper d y))))
+(define fastpyll_if (lambda (d x . y) (string-append "if " x ":\n\n" (fastpyll_helper d y))))
 (define fastpyll_else_if (lambda (d x . y) (string-append "else_if " x ":\n\n" (fastpyll_helper d y))))
 (define fastpyll_else (lambda (d . y) (string-append "else:\n\n" (fastpyll_helper d y))))
 (define fastpyll_try (lambda (d . y) (string-append "try:\n\n" (fastpyll_helper d y))))
@@ -907,13 +909,14 @@
      ((eq? symbol 'range) 'fastpyll_range)
      ((eq? symbol 'dot) 'fastpyll_d)
      ((eq? symbol 'access) 'fastpyll_a)
+     ((eq? symbol 'fstring) 'fastpyll_fstring)
      ((eq? symbol 'dictionary) 'fastpyll_dictionary)
      ((eq? symbol 'append) 'fastpyll_append)
      ((eq? symbol 'true) 'fastpyll_true)
      ((eq? symbol 'false) 'fastpyll_false)
      ((eq? symbol 'none) 'fastpyll_none)
      ((eq? symbol '=) 'fastpyll_equal)
-     ((eq? symbol '+) 'add)
+     ((eq? symbol 'add) 'add)
      ((eq? symbol '//) 'fastpyll_integer_divide)
      ((eq? symbol '/) 'fastpyll_float_divide)
      ((eq? symbol '*) 'fastpyll_multiply)
@@ -1191,7 +1194,17 @@
 
      ((and (not b) (not (list? (car x))) (> (length x) 1))
 
-      (append (list (car x)) (let ((foo (fastpyll_string_apply #f counter (cdr x)))) (if (list? foo) foo (list foo))))
+      (append 
+
+       (list
+
+		     (car x)
+)
+
+
+
+
+	      (let ((foo (fastpyll_string_apply #f counter (cdr x)))) (if (list? foo) foo (list foo))))
 
 
       
@@ -1218,9 +1231,13 @@
 
 
 
-    ((and (not b) (not (list? (car x))) (not (> (length x) 1))) (car x))
+     ((and (not b) (not (list? (car x))) (not (> (length x) 1)))
 
 
+      (car x)
+      
+	   
+      )
 
     )
     )
@@ -1246,10 +1263,9 @@
 (fastpyll_string_apply #t 1 
 			    (fastpyll_add_indentation #t 1
 						      (fastpyll_change_names #t 1 x)
-						      )
-			    )
      )
-    
+			    )
+)
 
   
 
