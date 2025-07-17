@@ -1,4 +1,4 @@
- ;;/*
+;;/*
 ;;
 ;;                    GNU GENERAL PUBLIC LICENSE
 ;;                       Version 3, 29 June 2007
@@ -680,57 +680,48 @@
 
 
 (use-modules (ice-9 textual-ports)   ;; for get-string-all, open-input-string
-             (ice-9 eval-string))     ;; provides eval-string
+             (ice-9 eval-string)     ;; provides eval-string
+)
 
-;(define curry string-append)
 
-(define indent (lambda (x) (if (= x 0) "" (string-append "    " (indent (- x 1))))))
+(define fastpyll_indent (lambda (x) (if (= x 0) "" (string-append "    " (fastpyll_indent (- x 1))))))
 
-(define curry (lambda (. x) (if (= (length x) 0) "" (if (> (length x) 1) (curry (car x) " " (curry (cdr x))) (car x)))))
+(define fastpyll_curry (lambda (. x) (if (= (length x) 0) "" (if (> (length x) 1) (fastpyll_curry (car x) " " (fastpyll_curry (cdr x))) (car x)))))
 
-(define helper (lambda (d x) (if (pair? x) (string-append (indent d) (car x) "\n\n" (helper d (cdr x))) "")))
+(define fastpyll_helper (lambda (d x) (if (pair? x) (string-append (fastpyll_indent d) (car x) "\n\n" (fastpyll_helper d (cdr x))) "")))
 
-(define codeblock (lambda (d x . y) (string-append x ":\n\n" (helper d y))))
-
-;(define pgroup (lambda (left right . x) (apply string-append (append (list left) x (list right )))))
-
-;(define group (lambda (. x) (apply pgroup (append (list "( " " )") x))))
+(define fastpyll_codeblock (lambda (d x . y) (string-append x ":\n\n" (fastpyll_helper d y))))
 
 
 
-(define unary_operation (lambda (x y) (group x y)))
+(define fastpyll_unary_operation (lambda (x y) (fastpyll_group x y)))
 
 
 
+(define fastpyll_string (lambda (x) (string-append "\"" x "\"")))
+
+(define fastpyll_fstring (lambda (x) (string-append "f" (string x))))
+
+(define fastpyll_comment (lambda (x) (fastpyll_curry "#" x "\n\n")))
+
+(define fastpyll_key (lambda (x y) (fastpyll_curry x ": " y)))
 
 
-;(define array (lambda (. x) (apply pgroup (append (list "[" "]") (arguments x)))))
-
-
-
-(define string (lambda (x) (string-append "\"" x "\"")))
-
-(define fstring (lambda (x) (string-append "f" (string x))))
-
-(define comment (lambda (x) (curry "#" x "\n\n")))
-
-(define key (lambda (x y) (curry x ": " y)))
-
-
-(define check_for_structure (lambda (x)
+(define fastpyll_check_for_structure  (lambda (x)
 			      (if (and (symbol? (car x))
 				       (or
 
-					(eq? (car x) 'codeblock)
-					(eq? (car x) 'pdef)
-				       (eq? (car x) 'print)
-				       (eq? (car x) 'while)
-				       (eq? (car x) 'pif)
-				       (eq? (car x) 'else_if)
-				       (eq? (car x) 'else)
-				       (eq? (car x) 'try)
-				       (eq? (car x) 'except)
-				       (eq? (car x) 'finally)
+					
+					(eq? (car x) 'fastpyll_codeblock)
+					(eq? (car x) 'fastpyll_define)
+				       (eq? (car x) 'fastpyll_print)
+				       (eq? (car x) 'fastpyll_while)
+				       (eq? (car x) 'fastpyll_pif)
+				       (eq? (car x) 'fastpyll_else_if)
+				       (eq? (car x) 'fastpyll_else)
+				       (eq? (car x) 'fastpyll_try)
+				       (eq? (car x) 'fastpyll_except)
+				       (eq? (car x) 'fastpyll_finally)
 
 				       )
 				       
@@ -741,80 +732,86 @@
 			      )
   )
 
-	(define import (lambda (x) (string-append "import " x)))
-	(define assign (lambda (x y) (string-append x " = " y)))
-	(define none "None")
-	(define pgroup (lambda (left right . x) (apply string-append (append (list left) (arguments x) (list right )))))
-	(define group (lambda (. x) (apply pgroup (append (list "( " " )") x))))
-	(define arguments (lambda x (if (= (length x) 1) (car x) (if (> (length x) 1) (string-append (car x) " , " (apply arguments (cdr x)))""))))
-	(define array (lambda (. x) (apply pgroup (list "[ " " ]" (apply arguments x)))))
-	(define call (lambda (x . y) (string-append x "( " (apply arguments y) " )")))
-	(define in (lambda (x y) (string-append x " in " y)))
-
-(define range (lambda ( . x) (apply call (append (list "range") x))))
-(define a_helper (lambda (x) (string-append "[ " (if (> (length x) 0) (car x) "") " ]" (if (> (length x) 1) (a_helper (cdr x)) ""))))
-(define a (lambda (b . x) (string-append b (a_helper x))))
-(define d (lambda ( . x) (string-append (if (> (length x) 0) (car x) "") (if (> (length x) 1) (string-append "."  (apply d (cdr x))) ""))))
 
 
-(define dictionary_helper (lambda ( . x)
+
+	(define fastpyll_import (lambda (x) (string-append "import " x)))
+	(define fastpyll_assign (lambda (x y) (string-append x " = " y)))
+	(define fastpyll_none "None")
+	(define fastpyll_pgroup (lambda (left right . x) (apply string-append (append (list left) (fastpyll_arguments x) (list right )))))
+	(define fastpyll_group (lambda (. x) (apply fastpyll_pgroup (append (list "( " " )") x))))
+	(define fastpyll_arguments (lambda x (if (= (length x) 1) (car x) (if (> (length x) 1) (string-append (car x) " , " (apply fastpyll_arguments (cdr x)))""))))
+	(define fastpyll_array (lambda (. x) (apply fastpyll_pgroup (list "[ " " ]" (apply fastpyll_arguments x)))))
+	(define fastpyll_call (lambda (x . y) (string-append x "( " (apply fastpyll_arguments y) " )")))
+	(define fastpyll_in (lambda (x y) (string-append x " in " y)))
+
+(define fastpyll_range (lambda ( . x) (apply fastpyll_call (append (list "range") x))))
+(define fastpyll_a_helper (lambda (x) (string-append "[ " (if (> (length x) 0) (car x) "") " ]" (if (> (length x) 1) (fastpyll_a_helper (cdr x)) ""))))
+(define fastpyll_a (lambda (b . x) (string-append b (fastpyll_a_helper x))))
+(define fastpyll_d (lambda ( . x) (string-append (if (> (length x) 0) (car x) "") (if (> (length x) 1) (string-append "."  (apply fastpyll_d (cdr x))) ""))))
+
+
+(define fastpyll_dictionary_helper (lambda ( . x)
 			    (if (= 0 (length x))
 				""
 		     (if (and (= 0 (modulo (length x) 2)) (> (length x) 1))
 			 (string-append (car x) ": " (car (cdr x))
 					(if (> (length (cdr (cdr x))) 1)
-					(string-append " , " (apply dictionary_helper (cdr (cdr x)))) ""))
+					(string-append " , " (apply fastpyll_dictionary_helper (cdr (cdr x)))) ""))
 			 (error 'dictionary "wrong number of arguments to dictionary")))))
 
-(define dictionary (lambda ( . x) (string-append "{ " (apply dictionary_helper x) " }")))
-			 (define pappend (lambda (x y) (call (d x "append") y)))
-			 (define print (lambda ( . a ) (apply call (append (list "print") (list (arguments a))))))
-			 (define true "True")
-			 (define false "False")
-			 (define none "None")
+(define fastpyll_dictionary (lambda ( . x) (string-append "{ " (apply fastpyll_dictionary_helper x) " }")))
+(define fastpyll_pappend (lambda (x y) (fastpyll_call (fastpyll_d x "append") y)))
+(define fastpyll_print (lambda ( . a ) (apply fastpyll_call (append (list "print") (list (fastpyll_arguments a))))))
+			 (define fastpyll_true "True")
+			 (define fastpyll_false "False")
+			 (define fastpyll_none "None")
 
-	(define binary_operation (lambda (operation x y) (group x " " operation " "  y)))
-	(define equal (lambda (x y) (binary_operation "==" x y)))
-	(define subtract (lambda (x y) (binary_operation "-" x y)))
-	(define integer-divide (lambda (x y) (binary_operation "//" x y)))
-	(define float-divide (lambda (x y) (binary_operation "/" x y)))
-	(define multiply (lambda (x y) (binary_operation "*" x y)))
+	(define fastpyll_binary_operation (lambda (operation x y) (fastpyll_group x " " operation " "  y)))
+	(define fastpyll_equal (lambda (x y) (fastpyll_binary_operation "==" x y)))
+	(define fastpyll_subtract (lambda (x y) (fastpyll_binary_operation "-" x y)))
+	(define fastpyll_integer-divide (lambda (x y) (fastpyll_binary_operation "//" x y)))
+	(define fastpyll_float-divide (lambda (x y) (fastpyll_binary_operation "/" x y)))
+	(define fastpyll_multiply (lambda (x y) (fastpyll_binary_operation "*" x y)))
 
-	(define add (lambda (x y) (binary_operation "+" x y)))
-	(define pand (lambda (x y) (binary_operation "and" x y)))
-	(define por (lambda (x y) (binary_operation "or" x y)))
-	(define not_equal (lambda (x y) (binary_operation "!=" x y)))
-	(define pnot (lambda (x) (string-append "( " "not " x " )")))
-	(define tilda (lambda (x) (string-append "~" "( " x " )")))
-	(define set_intersection (lambda (x y) (binary_operation "&" x y)))
-	(define set_union (lambda (x y) (binary_operation "|" x y)))
-	(define global (lambda ( . y) (string-append "global " (apply arguments y))))
-(define return (lambda ( . a ) (apply string-append "return " (arguments a))))
+	(define fastpyll_add (lambda (x y) (fastpyll_binary_operation "+" x y)))
+	(define fastpyll_pand (lambda (x y) (fastpyll_binary_operation "and" x y)))
+	(define fastpyll_por (lambda (x y) (fastpyll_binary_operation "or" x y)))
+	(define fastpyll_not_equal (lambda (x y) (fastpyll_binary_operation "!=" x y)))
+	(define fastpyll_pnot (lambda (x) (string-append "( " "not " x " )")))
+	(define fastpyll_tilda (lambda (x) (string-append "~" "( " x " )")))
+	(define fastpyll_set_intersection (lambda (x y) (fastpyll_binary_operation "&" x y)))
+	(define fastpyll_set_union (lambda (x y) (fastpyll_binary_operation "|" x y)))
+	(define fastpyll_global (lambda ( . y) (string-append "global " (apply fastpyll_arguments y))))
+(define fastpyll_return (lambda ( . a ) (apply string-append "return " (fastpyll_arguments a))))
 
 
 
-(define for (lambda (d x . y) (string-append "for " x ":\n\n" (helper d y))))
+(define fastpyll_for (lambda (d x . y) (string-append "for " x ":\n\n" (fastpyll_helper d y))))
 
-(define pdef (lambda (d x a . y) (begin
-				  (if (= d "1") (eval `(define ,(string->symbol x) (lambda ( . z) (apply call (append (cons ,x z ))))) (interaction-environment)))
-				  (string-append "def " x "( " (apply arguments a) " ):\n\n" (helper d y)))))
-(define while (lambda (d x . y) (string-append "while " x ":\n\n" (helper d y))))
-(define pif (lambda (d x . y) (string-append "if " x ":\n\n" (helper d y))))
-(define else_if (lambda (d x . y) (string-append "else_if " x ":\n\n" (helper d y))))
-(define else (lambda (d . y) (string-append "else:\n\n" (helper d y))))
-(define try (lambda (d . y) (string-append "try:\n\n" (helper d y))))
-(define except (lambda (d x . y) (string-append "except " x ":\n\n" (helper d y))))
-(define finally (lambda (d . y) (string-append "finally:\n\n" (helper d y))))
+(define fastpyll_define (lambda (d x a . y)
+				 (string-append "def " x "( " (apply fastpyll_arguments a) " ):\n\n" (fastpyll_helper d y))))
 
 
 
 
-(define add_indentation
+(define fastpyll_while (lambda (d x . y) (string-append "while " x ":\n\n" (fastpyll_helper d y))))
+(define fastpyll_pif (lambda (d x . y) (string-append "if " x ":\n\n" (fastpyll_helper d y))))
+(define fastpyll_else_if (lambda (d x . y) (string-append "else_if " x ":\n\n" (fastpyll_helper d y))))
+(define fastpyll_else (lambda (d . y) (string-append "else:\n\n" (fastpyll_helper d y))))
+(define fastpyll_try (lambda (d . y) (string-append "try:\n\n" (fastpyll_helper d y))))
+(define fastpyll_except (lambda (d x . y) (string-append "except " x ":\n\n" (fastpyll_helper d y))))
+(define fastpyll_finally (lambda (d . y) (string-append "finally:\n\n" (fastpyll_helper d y))))
+
+
+
+
+(define fastpyll_add_indentation
   (lambda (b counter x)
     (cond
      ((and b (list? (car x)) (> (length x) 1))
 
-      (append (add_indentation #t counter (car x)) (let ((foo (add_indentation #f counter (cdr x))))
+      (append (list (fastpyll_add_indentation #t counter (car x))) (let ((foo (fastpyll_add_indentation #f counter (cdr x))))
 						     (if (list? foo)
 							 foo
 							 (list foo))))
@@ -824,7 +821,7 @@
 
      ((and (not b) (list? (car x)) (> (length x) 1))
 
-      (append (list (add_indentation #t counter (car x))) (let ((foo (add_indentation #f counter (cdr x))))
+      (append (list (fastpyll_add_indentation #t counter (car x))) (let ((foo (fastpyll_add_indentation #f counter (cdr x))))
 							    (if (list? foo)
 								foo
 								(list foo))))
@@ -837,13 +834,13 @@
      ((and  b (not (list? (car x))) (> (length x) 1))
 
       (append (list (car x))
-	      (if (check_for_structure x)
-		  (append (list counter) (let ((foo (add_indentation #f (+ counter 1) (cdr x))))
+	      (if (fastpyll_check_for_structure x)
+		  (append (list counter) (let ((foo (fastpyll_add_indentation #f (+ counter 1) (cdr x))))
 					   (if (list? foo)
 					       foo
 					       (list foo)))
 			  )
-		  (let ((foo (add_indentation #f counter (cdr x))))
+		  (let ((foo (fastpyll_add_indentation #f counter (cdr x))))
 		    (if (list? foo)
 			foo
 			(list foo)))))
@@ -854,7 +851,7 @@
 
      ((and b (list? (car x)) (not (> (length x) 1))) 
 
-      (list (add_indentation #t counter (car x)))
+      (list (fastpyll_add_indentation #t counter (car x)))
 
       )
 
@@ -862,7 +859,7 @@
 
      ((and (not b) (not (list? (car x))) (> (length x) 1))
 
-      (append (list (car x)) (let ((foo (add_indentation #f counter (cdr x))))
+      (append (list (car x)) (let ((foo (fastpyll_add_indentation #f counter (cdr x))))
 			       (if (list? foo)
 				   foo
 				   (list foo))))
@@ -874,7 +871,7 @@
 
      ((and (not b) (list? (car x)) (not (> (length x) 1)))
 
-      (list (add_indentation #t counter (car x)))
+      (list (fastpyll_add_indentation #t counter (car x)))
 
       )
 
@@ -888,22 +885,338 @@
   )
 
 
-	  						  
-;(define fastpyll
-;  (lambda (x)
-;					  (display (add_indentation #t 1 x))))
+;(define fastpyll_call (lambda (x . y) (string-append x "( " (apply fastpyll_arguments y) " )")))
 
-(define fastpyll_helper
+  
+;; Checks if a symbol is bound in the interaction environment.
+;; This is a workaround for 'environment-bound?' if (ice-9 eval) is unavailable.
+(define (is-bound? sym)
+  (call-with-current-continuation
+   (lambda (k)
+     (with-exception-handler
+      (lambda (exn)
+        ;; If any error occurs during the evaluation of 'sym',
+        ;; we assume it's because the variable is not bound.
+        ;; This is a general catch-all for robustness in this scenario.
+        (k #f)) ; Return #f (not bound)
+      (lambda ()
+        ;; Attempt to evaluate the symbol in the interaction environment.
+        ;; If it succeeds, the variable is bound.
+        (eval sym (interaction-environment))
+        (k #t)))))) ; Return #t (bound)
+
+
+(define fastpyll_precall
+  (lambda (symbol_a . y)
+    (string-append symbol_a "( " (apply fastpyll_arguments y) " )")))
+
+
+
+(define fastpyll_add_prefix
+  (lambda (symbol_a)
+    (if (eq? symbol_a 'list)
+	(list symbol_a)
+	(let* (( fastpyll_symbol (string->symbol (string-append "fastpyll_" (symbol->string symbol_a)))))
+	  (if (is-bound? fastpyll_symbol)
+	      (list fastpyll_symbol)
+
+	      (list 'fastpyll_precall (symbol->string symbol_a))
+
+	      )
+
+
+
+	    
+    
+
+
+	)
+
+    )))
+
+
+
+
+
+
+
+
+
+(define fastpyll_change_names
+  (lambda (b counter x)
+    (cond
+     ((and b (list? (car x)) (> (length x) 1))
+
+      (append (list (fastpyll_change_names #t counter (car x))) (let ((foo (fastpyll_change_names #f counter (cdr x))))
+						     (if (list? foo)
+							 foo
+							 (list foo))))
+      )
+
+
+     ((and (not b) (list? (car x)) (> (length x) 1))
+
+      (append (list (fastpyll_change_names #t counter (car x))) (let ((foo (fastpyll_change_names #f counter (cdr x))))
+							    (if (list? foo)
+								foo
+								(list foo))))
+      
+
+      )
+
+
+
+     ((and  b (not (list? (car x))) (> (length x) 1))
+
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+      (append 
+
+	       (fastpyll_add_prefix (car x))
+
+
+	      (append (let ((foo (fastpyll_change_names #f counter (cdr x))))
+					   (if (list? foo)
+					       foo
+					       (list foo)))
+		      )
+	      )
+      )
+
+
+
+     ((and b (list? (car x)) (not (> (length x) 1))) 
+
+      (list (fastpyll_change_names #t counter (car x)))
+
+      )
+
+     
+
+     ((and (not b) (not (list? (car x))) (> (length x) 1))
+
+      (append (list (car x)) (let ((foo (fastpyll_change_names #f counter (cdr x))))
+			       (if (list? foo)
+				   foo
+				   (list foo))))
+      
+      
+      )
+
+     
+
+     ((and (not b) (list? (car x)) (not (> (length x) 1)))
+
+      (list (fastpyll_change_names #t counter (car x)))
+
+      )
+
+
+     ;;;;;;;;;;;;
+     ((and  b (not (list? (car x))) (not (> (length x) 1))) (fastpyll_add_prefix (car x)))
+
+
+
+     ((and (not b) (not (list? (car x))) (not (> (length x) 1))) (car x))
+     )
+    )
+  )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(define fastpyll_string_precall
+  (lambda (symbol_a . y)
+    (string-append symbol_a "( " (apply fastpyll_arguments y) " )")))
+
+
+
+(define fastpyll_add_prefix_to_string
+  (lambda (symbol_a)
+    (if (string? symbol_a)
+	(list 'fastpyll_string_precall symbol_a)
+					symbol_a
+
+)
+
+
+    )
+  )
+
+
+
+
+
+(define fastpyll_string_apply
+  (lambda (b counter x)
+    (cond
+     ((and b (list? (car x)) (> (length x) 1))
+;boar
+
+      (let ((bar (fastpyll_string_apply #t counter (car x))))
+	(if (string? bar)
+	    (fastpyll_string_apply #t counter (append
+
+					       (fastpyll_add_prefix_to_string bar)
+
+					       (cdr x)
+					       ))
+					       
+
+	    (append 
+		 (let ((foo (fastpyll_string_apply #f counter (cdr x))))
+		(if (list? foo)
+		    foo
+		    (list foo))))
+					     ))
+      )
+
+
+     ((and (not b) (list? (car x)) (> (length x) 1))
+
+
+      (append (list (fastpyll_string_apply #t counter (car x))) (let ((foo (fastpyll_string_apply #f counter (cdr x))))
+							    (if (list? foo)
+								foo
+								(list foo))))
+      
+
+      )
+
+
+
+     ((and  b (not (list? (car x))) (> (length x) 1))
+
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;fastpyll_add_prefix_to_string
+
+      
+      (apply
+
+       (eval (car x) (interaction-environment))
+
+
+	      (append (let ((foo (fastpyll_string_apply #f counter (cdr x))))
+					   (if (list? foo)
+					       foo
+					       (list foo))))
+	      )
+      )
+
+
+
+
+     ((and b (list? (car x)) (not (> (length x) 1)))
+
+;boar
+      (let ((bar (fastpyll_string_apply #t counter (car x))))
+	(if (string? bar)
+	    (fastpyll_string_apply #t counter (append
+
+					       (fastpyll_add_prefix_to_string bar)
+))
+					       
+
+
+
+	    (list (fastpyll_string_apply #t counter (car x)))
+	    )
+	)
+
+      )
+
+     
+
+     ((and (not b) (not (list? (car x))) (> (length x) 1))
+
+      (append (list (car x)) (let ((foo (fastpyll_string_apply #f counter (cdr x)))) (if (list? foo) foo (list foo))))
+
+
+      
+      )
+
+     
+
+     ((and (not b) (list? (car x)) (not (> (length x) 1)))
+
+      (list (fastpyll_string_apply #t counter (car x)))
+
+      )
+
+
+     ;;;;;;;;;;;;fastpyll_add_prefix_to_string
+     ((and  b (not (list? (car x))) (not (> (length x) 1)))
+
+      (apply (eval (car x) (interaction-environment)) (list))
+      )
+      
+
+								   
+								   
+
+
+
+    ((and (not b) (not (list? (car x))) (not (> (length x) 1))) (car x))
+
+
+
+    )
+    )
+  )
+  
+  
+
+
+
+  
+  
+
+	  						  
+;(define fastpyll_fastpyll
+;  (lambda (x)
+; (display (fastpyll_string_apply #t 1 x))))
+
+(define fastpyll_fastpyll_helper
   (lambda (x)
   (begin
-    (display  (eval
-	       (add_indentation #t 1 x)
-	       (interaction-environment)))
+    (display
+
+(fastpyll_string_apply #t 1 
+			    (fastpyll_add_indentation #t 1
+						      (fastpyll_change_names #t 1 x)
+						      )
+			    )
+     )
+    
+
+  
+
+			    
+     
+     
+
   (display "\n\n"))))
 
-(define fastpyll
+(define fastpyll_fastpyll
   (lambda (x)
-    (map fastpyll_helper x)))
+    (map fastpyll_fastpyll_helper x)))
 
 (load "/dev/stdin")
 
