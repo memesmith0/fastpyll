@@ -885,25 +885,70 @@
   )
 
 
-;(define fastpyll_call (lambda (x . y) (string-append x "( " (apply fastpyll_arguments y) " )")))
 
+
+
+;"blue"
+(define fastpyll_is_fastpyll_primative
+  (lambda (symbol)
+
+    (cond
+     ((eq? symbol 'indent) 'fastpyll_indent)
+     ((eq? symbol 'string) 'fastpyll_string)
+     ((eq? symbol 'fstring) 'fastpyll_fstring)
+     ((eq? symbol 'comment) 'fastpyll_comment)
+     ((eq? symbol 'import) 'fastpyll_import)
+     ((eq? symbol 'assign) 'fastpyll_assign)
+     ((eq? symbol 'none) 'fastpyll_none)
+     ((eq? symbol 'group) 'fastpyll_group)
+     ((eq? symbol 'arguments) 'fastpyll_arguments)
+     ((eq? symbol 'array) 'fastpyll_array)
+     ((eq? symbol 'in) 'fastpyll_in)
+     ((eq? symbol 'range) 'fastpyll_range)
+     ((eq? symbol 'dot) 'fastpyll_d)
+     ((eq? symbol 'access) 'fastpyll_a)
+     ((eq? symbol 'dictionary) 'fastpyll_dictionary)
+     ((eq? symbol 'append) 'fastpyll_append)
+     ((eq? symbol 'true) 'fastpyll_true)
+     ((eq? symbol 'false) 'fastpyll_false)
+     ((eq? symbol 'none) 'fastpyll_none)
+     ((eq? symbol '=) 'fastpyll_equal)
+     ((eq? symbol '+) 'add)
+     ((eq? symbol '//) 'fastpyll_integer_divide)
+     ((eq? symbol '/) 'fastpyll_float_divide)
+     ((eq? symbol '*) 'fastpyll_multiply)
+     ((eq? symbol 'and) 'fastpyll_and)
+     ((eq? symbol 'or) 'fastpyll_or)
+     ((eq? symbol 'not_equal) 'fastpyll_not_equal)
+     ((eq? symbol '!) 'fastpyll_not)
+     ((eq? symbol 'tilda) 'fastpyll_tilda)
+     ((eq? symbol '&) 'fastpyll_set_intersection)
+     ((eq? symbol 'vertical_bar) 'fastpyll_set_union)
+     ((eq? symbol 'global) 'fastpyll_global)
+     ((eq? symbol 'return) 'fastpyll_return)
+     ((eq? symbol 'for) 'fastpyll_for)
+     ((eq? symbol 'define) 'fastpyll_define)
+     ((eq? symbol 'while) 'fastpyll_while)
+     ((eq? symbol 'if) 'fastpyll_if)
+     ((eq? symbol 'else_if) 'fastpyll_else_if)
+     ((eq? symbol 'else) 'fastpyll_else)
+     ((eq? symbol 'try) 'fastpyll_try)
+     ((eq? symbol 'except) 'fastpyll_except)
+     ((eq? symbol 'finally) 'fastpyll_finally)
+     (#t 'foop)
+     )
+
+
+
+
+
+     )
+    )
   
-;; Checks if a symbol is bound in the interaction environment.
-;; This is a workaround for 'environment-bound?' if (ice-9 eval) is unavailable.
-(define (is-bound? sym)
-  (call-with-current-continuation
-   (lambda (k)
-     (with-exception-handler
-      (lambda (exn)
-        ;; If any error occurs during the evaluation of 'sym',
-        ;; we assume it's because the variable is not bound.
-        ;; This is a general catch-all for robustness in this scenario.
-        (k #f)) ; Return #f (not bound)
-      (lambda ()
-        ;; Attempt to evaluate the symbol in the interaction environment.
-        ;; If it succeeds, the variable is bound.
-        (eval sym (interaction-environment))
-        (k #t)))))) ; Return #t (bound)
+
+;;this is to fix my syntax highlighting
+
+
 
 
 (define fastpyll_precall
@@ -916,8 +961,8 @@
   (lambda (symbol_a)
     (if (eq? symbol_a 'list)
 	(list symbol_a)
-	(let* (( fastpyll_symbol (string->symbol (string-append "fastpyll_" (symbol->string symbol_a)))))
-	  (if (is-bound? fastpyll_symbol)
+	(let* (( fastpyll_symbol (fastpyll_is_fastpyll_primative symbol_a)))
+	  (if (not (eq? fastpyll_symbol 'foop))
 	      (list fastpyll_symbol)
 
 	      (list 'fastpyll_precall (symbol->string symbol_a))
