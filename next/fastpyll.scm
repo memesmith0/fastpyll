@@ -769,7 +769,7 @@
 		     (if (and (= 0 (modulo (length x) 2)) (> (length x) 1))
 			 (string-append (fastpyll_fstring (car x)) ": " (car (cdr x))
 					(if (> (length (cdr (cdr x))) 1)
-					(string-append " , " (apply fastpyll__dot_dictionary_helper (cdr (cdr x)))) ""))
+					(string-append " , " (apply fastpyll_dot_dictionary_helper (cdr (cdr x)))) ""))
 			 (error 'dot_dictionary "wrong number of arguments to dot_dictionary")))))
 
 (define fastpyll_dot_dictionary (lambda ( . x) (string-append "{ " (apply fastpyll_dot_dictionary_helper x) " }")))
@@ -810,7 +810,7 @@
 
 (define fastpyll_while (lambda (d x . y) (string-append "while " x ":\n\n" (fastpyll_helper d y))))
 (define fastpyll_if (lambda (d x . y) (string-append "if " x ":\n\n" (fastpyll_helper d y))))
-(define fastpyll_else_if (lambda (d x . y) (string-append "else_if " x ":\n\n" (fastpyll_helper d y))))
+(define fastpyll_else_if (lambda (d x . y) (string-append "elif " x ":\n\n" (fastpyll_helper d y))))
 (define fastpyll_else (lambda (d . y) (string-append "else:\n\n" (fastpyll_helper d y))))
 (define fastpyll_try (lambda (d . y) (string-append "try:\n\n" (fastpyll_helper d y))))
 (define fastpyll_except (lambda (d x . y) (string-append "except " x ":\n\n" (fastpyll_helper d y))))
