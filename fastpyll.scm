@@ -823,6 +823,93 @@
 (define fastpyll_finally (lambda (d . y) (string-append "finally:\n\n" (fastpyll_helper d y))))
 
 
+(define fastpyll_stringify
+  (lambda (b counter x)
+    (cond
+     ((and b (list? (car x)) (> (length x) 1))
+
+      (append (list (fastpyll_stringify #t counter (car x))) (let ((foo (fastpyll_stringify #f counter (cdr x))))
+						     (if (list? foo)
+							 foo
+							 (list foo))))
+
+      )
+
+
+     ((and (not b) (list? (car x)) (> (length x) 1))
+
+      (append (list (fastpyll_stringify #t counter (car x))) (let ((foo (fastpyll_stringify #f counter (cdr x))))
+							    (if (list? foo)
+								foo
+								(list foo))))
+      
+
+      )
+
+
+
+     ((and  b (not (list? (car x))) (> (length x) 1))
+
+      (append (list (car x))
+		  (let ((foo (fastpyll_stringify #f counter (cdr x))))
+		    (if (list? foo)
+			foo
+			(list foo))))
+      
+      )
+
+
+
+     ((and b (list? (car x)) (not (> (length x) 1))) 
+
+      (list (fastpyll_stringify #t counter (car x)))
+
+      )
+
+     
+
+     ((and (not b) (not (list? (car x))) (> (length x) 1))
+
+      (append (list (cond ((string? (car x)) (fastpyll_fstring (car x)))
+			  ((symbol? (car x)) (symbol->string (car x)))
+			  ((number? (car x)) (number->string (car x)))
+
+			))
+
+
+
+	      (let ((foo (fastpyll_stringify #f counter (cdr x))))
+			       (if (list? foo)
+				   foo
+				   (list foo))))
+      
+      
+      )
+
+     
+
+     ((and (not b) (list? (car x)) (not (> (length x) 1)))
+
+      (list (fastpyll_stringify #t counter (car x)))
+
+      )
+
+
+     ((and  b (not (list? (car x))) (not (> (length x) 1))) x)
+
+
+     ((and (not b) (not (list? (car x))) (not (> (length x) 1)))
+      (cond ((string? (car x)) (fastpyll_fstring (car x)))
+	    ((symbol? (car x)) (symbol->string (car x)))
+	    ((number? (car x)) (number->string (car x)))))
+     )
+    )
+  )
+
+
+
+
+
 
 
 (define fastpyll_add_indentation
@@ -1285,7 +1372,11 @@
 
 (fastpyll_string_apply #t 1 
 			    (fastpyll_add_indentation #t 1
-						      (fastpyll_change_names #t 1 x)
+     (fastpyll_change_names #t 1
+
+
+			    (fastpyll_stringify #t 1 x)
+			    )
      )
 			    )
 )
