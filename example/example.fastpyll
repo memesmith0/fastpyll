@@ -677,407 +677,488 @@
 ;; */
 ;;
 
+;dependenciess
+(import sys)
+(import os)
+(import time)
+(import termios)
+(import tty)
+(import select)
 
+;;ansi-rendering_stuff
+(assign _original_terminal_settings (none))
 
-(import "sys")
-(import "os")
-(import "time")
-(import "termios")
-(import "tty")
-(import "select")
-	
-
-
-;;ansi escape character
-(assign "esc" (string "\\x1b"))
-
-;;control sequence introduce
-(assign "csi" (fstring "{esc}["))
-
-(assign "sgr_reset" (fstring "{csi}0m")) ;;reset all attributes
-
-(assign "block_char" (string "█"))
-
-(assign "blue" (fstring "34"))
-
-(assign "_original_terminal_settings" none)
-(assign "_fd" none)
-
-(def "setup_terminal"
-    (list "")
-  (list
-   
-					;hide cursor
-   (call (dot (dot "sys" "stdout") "write") (list (fstring "{csi}?25l")))
-
-					;clear screen
-   (call (dot (dot "sys" "stdout") "write") (list (fstring "{csi}2J")))
-
-   ;;move cursor to home
-   (call (dot (dot "sys" "stdout") "write") (list (fstring "{csi}H")))
-   (call (dot (dot "sys" "stdout") "flush") (list ""))))
-
-(def "set_terminal_raw_mode"
-    (list "")
-  (list
-   (global (intersperse (list "_original_terminal_settings" "_fd")))
-
-   (assign "_fd" (call (dot (dot "sys" "stdin") "fileno") (list "")))
-   (assign "_original_terminal_settings" (call (dot "termios" "tcgetattr") (list "_fd")))
-
-   (assign "new_settings" (call (dot "termios" "tcgetattr") (list "_fd")))
-
-   (assign (access "new_settings" "3") (set-intersection (access "new_settings" "3") (tilda (group (set-union (dot "termios" "ICANON") (dot "termios" "ECHO"))))))
-
-   (assign (access (access "new_settings" "6") (dot "termios" "VMIN")) "0")
-   (assign (access (access "new_settings" "6") (dot "termios" "VTIME")) "0")
-
-   (call (dot "termios" "tcsetattr") (list "_fd" (dot "termios" "TCSANOW") "new_settings"))))
-
-(def "restore_terminal_mode"
-    (list "")
-	  (list
-	  (global (intersperse (list "_original_terminal_settings" "_fd")))
-	  (pif (pand (pnot (equal "_fd" none)) (pnot (equal "_original_terminal_settings" none)))
-	       (list
-		(call (dot "termios" "tcsetattr") (list "_fd" (dot "termios" "TCSADRAIN")
-							"_original_terminal_settings"))))))
-
-(def "restore_terminal"
-    (list (assign "final_row" none) (assign "final_col" none))
-
-  (list
-
-   (pif (pand (pnot (equal "final_row" none) ) (pnot (equal "final_col" none)))
-	(list
-	 (call (dot (dot "sys" "stdout") "write") (list (fstring "{csi}{final_row};{final_col}H")))
-	 )
-	)
-   (pelse
-    (list
-     (assign "foo" (multiply "2" (dot "os" "linesep")))
-     (call (dot (dot "sys" "stdout") "write") (list (fstring "{foo}")))))
+(assign _fd (none))
+(assign esc "\\x1b")
+(assign csi "{esc}[")
+(assign sgr_reset "{csi}0m")
 
 
-					;show cursor
-   (call (dot (dot "sys" "stdout") "write") (list (fstring "{csi}?25h")))
-   (call (dot (dot "sys" "stdout") "flush") (list ""))
-     
-   )
-  )
+;;upper_block character for proper pixel rendering
+(assign block_char "▀")
 
-(def "get_char_non_blocking"
-    (list "")
-  (list
-  (assign "fd" (call (dot (dot "sys" "stdin") "fileno") (list "")))
 
-  (assign "old_settings" (call (dot "termios" "tcgetattr") (list "fd")))
 
-  (try
-   (list
-    (assign "new_settings" (call (dot "termios" "tcgetattr") (list "fd")))
-    (assign (access "new_settings" "3") (set-intersection (access "new_settings" "3")
-							  (tilda (group (set-union
-									 (dot "termios" "ICANON") (dot "termios" "ECHO"))))))
-    (assign (access (access "new_settings" "6") (dot "termios" "VMIN")) "0")
-    (assign (access (access "new_settings" "6") (dot "termios" "VTIME")) "0")
-    (call (dot "termios" "tcsetattr") (list "fd" (dot "termios" "TCSANOW") "new_settings"))
-    
-;    (call (dot "tty" "setcbreak") (list "fd"))
-    (assign "char" none)
-    (pif (equal
-	  (call (dot "select" "select")
-		(list
-		 (array (list 
-			 (dot "sys" "stdin")))
-			(array (list ""))
-			(array (list ""))
-			 "0"))
-	  (group
-	   (intersperse
-	    (list
-	    (array
-	     (list
-	      (dot
-	       "sys"
-	       "stdin"
-	       )))
-	    (array (list ""))
-	    (array (list ""))))))
-	 
-	 (list
-	  (assign "char" (call (dot (dot "sys" "stdin") "read")  (list "1")))))))
+;;colors
+(assign black (array 0 0 0))
+(assign transparent (array -1 -1 -1))
+(assign blue (array 0 0 255))
+(assign wizard_blue (array 33 47 73))
 
-  (finally
-   (list
-   (call (dot "termios" "tcsetattr") (list
-				      "fd"
-				      (dot "termios" "TCSADRAIN")
-				      "old_settings"))))
-  (return (list "char"))))
 
-    
 
 
-(def "pixel"
-    (list "row" "col" "color_code")
-  (list
-   (assign "sgr_color_fg" (fstring "{csi}{color_code}m"))
 
-   (assign "cursor_pos" (fstring "{csi}{row};{col}H"))
 
-   (call (dot (dot "sys" "stdout") "write") (list (fstring "{cursor_pos}{sgr_color_fg}{block_char}{sgr_reset}")))
-   (call (dot (dot "sys" "stdout") "flush") (list "")))
-  )
 
-   
+;;create screen
+(assign screen_width 320)
+(assign screen_height 162)
+(assign screen (array))
 
+(for
+ (in r (range screen_height))
+	   (assign row_data (array))
+	   (for (in c (range screen_width))
+		((dot row_data append)
+			    
+					;this defines the structure of screen_data
+			    (dot_dictionary
 
+					;occupant pixels contain the individual pixels of entitiess as well
+					;as other information such as collision info and hitbox info
+			     occupant_pixels (dictionary)
 
 
-(def "erase_pixel"
-    (list "row" "col")
-  (list
-   (assign "cursor_pos" (fstring "{csi}{row};{col}H"))
+					;this defines the last color that was drawn to the screen to prevent from
+					;having to redraw
+			     last_color black
 
-   (assign "sgr_default_fg_bg" (fstring "{csi}39;49m"))
+			     )
+			    )
+		)
 
-   (call (dot (dot "sys" "stdout") "write") (list (fstring "{cursor_pos}{sgr_default_fg_bg} ")))
-   (call (dot (dot "sys" "stdout") "flush") (list ""))
-   )
-  )
 
 
+			     			     			     
 
 
+					;finish drawing screen
+	   ((dot screen append) row_data))
 
-(def "square"
-    (list "ya" "xa" "lx" "ly" "color")
 
-  (list
-  (assign "xa" (add "xa" "1"))
-  (assign "ya" (add "ya" "1"))
-  (assign "xb" (add "xa" "lx"))
-  (assign "yb" (add "ya" "ly"))
-
-   (for "j" (range (list (add (subtract "xb"  "xa" ) "1")))
-	(list
-	 (for "k" (range (list (add (subtract "yb" "ya") "1")))
-	      (list
-	       (call "pixel" (list (add "xa" "j") (add "ya" "k") "color"))))))))
-
-
-(def "erase_square"
-    (list "ya" "xa" "lx" "ly")
-
-  (list
-  (assign "xa" (add "xa" "1"))
-  (assign "ya" (add "ya" "1"))
-  (assign "xb" (add "xa" "lx"))
-  (assign "yb" (add "ya" "ly"))
-
-   (for "j" (range (list (add (subtract "xb"  "xa" ) "1")))
-	(list
-	 (for "k" (range (list (add (subtract "yb" "ya") "1")))
-	      (list
-	       (call "erase_pixel" (list (add "xa" "j") (add "ya" "k")))))))))
-
-
-
-
-(def "sprite"
-    (list "x" "y" "the_sprite")
-  (list
-   (for "i" "the_sprite"
-	(list
-
-	  (call "square" (list (add "x" (access "i" "0")) (add "y" (access "i" "1")) (access "i" "2") (access "i" "3") (access "i" "4") ))
-	 )
-	)
-   )
-  )
-
-
-
-(assign "man" (array
-		    (list
-
-		    (array (list "0" "1" "0" "0" "blue"))
-
-		    (array (list "0" "3" "0" "0" "blue"))
-
-		    (array (list "1" "2" "0" "0" "blue"))
-
-		    (array (list "2" "3" "0" "0" "blue"))
-
-		    (array (list "2" "1" "0" "0" "blue"))
-
-		    (array (list "1" "1" "0" "0" "blue"))
-
-		    (array (list "1" "0" "0" "0" "blue"))
-		    
-
-		    )
-		    
-
-		    ))
-
-(assign "x" (array
-		    (list
-
-		    (array (list "0" "0" "0" "0" "blue"))
-
-		    (array (list "0" "2" "0" "0" "blue"))
-
-		    (array (list "1" "1" "0" "0" "blue"))
-
-		    (array (list "2" "2" "0" "0" "blue"))
-
-		    (array (list "2" "0" "0" "0" "blue"))
-
-		    )
-		    
-
-		    )
-	)
-
-   
-;   (call "pixel" (list "row" "col" "blue"))
-;   (call "pixel" (list (add "row" "1") (add "col" "1") "blue"))
-;
-;   (call "pixel" (list (add "row" "0") (add "col" "2") "blue"))
-;
-;      (call "pixel" (list (add "row" "1") (add "col" "1") "blue"))
-;
-;      (call "pixel" (list (add "row" "2") (add "col" "2") "blue"))
-;
-;         (call "pixel" (list (add "row" "2") (add "col" "0") "blue"))
-
-
-
-
-
-
-(def "erase_sprite"
-    (list "row" "col" "sprite")
-  (list
-
-   (for "i" "sprite"
-
-	(list
-
-
-	 (call "erase_square" (list (add "row "(access "i" "0")) (add "col" (access "i" "1")) (access "i" "2") (access "i" "3")))
-
-
-	 )
-
-   
-   )))
-
-
-(assign "sprite_foo" "x")
-
-
-(def "main"
-    (list "")
-  (list
-   (call "set_terminal_raw_mode" (list ""))
-   
-  (call "setup_terminal" (list ""))
-
-  ;;drawa  blue square at row 20 column 20
-
-
-  
-
-  (call "square" (list "15" "20" "0" "12" "blue"))
-  (call "square" (list "28" "20" "8" "0" "blue"))
-  (call "square" (list "15" "28" "0" "12" "blue" ))
-
-
-;  (call "sprite"  (list "1" "1" "sprite_foo"))
-;  (call "erase_sprite" (list "1" "1;" "sprite_foo"))
-;  (call (dot "time" "sleep") (list "10"))
-
-  (assign "positionx" "0")
-  (assign "positiony" "0")
-
-  (call "sprite" (list "positionx" "positiony" "sprite_foo"))
-
-
-  (assign "continue2" "True")
-
-  (while "continue2"
-    (list
-     (assign "key" (call "get_char_non_blocking" (list "")))
-     (pif (equal "key" "\"q\"")
-	  (list
-	   (assign "continue2" "False")))
-
-     (pelif (equal "key" (string "w"))
-	    (list
-	     (call "erase_sprite" (list "positionx" "positiony" "sprite_foo"))
-	     (assign "positiony" (subtract "positiony" "1"))
-	     (call "sprite" (list "positionx" "positiony" "sprite_foo"))))
-
-     (pelif (equal "key" (string "a"))
-	    (list
-	     (call "erase_sprite" (list "positionx" "positiony" "sprite_foo"))
-	     (assign "positionx" (subtract "positionx" "1"))
-	     (call "sprite" (list "positionx" "positiony" "sprite_foo"))))
-     (pelif (equal "key" (string "s"))
-	    (list
-	     (call "erase_sprite" (list "positionx" "positiony" "sprite_foo"))
-	     (assign "positiony" (add "positiony" "1"))
-	     (call "sprite" (list "positionx" "positiony" "sprite_foo"))))
-     (pelif (equal "key" (string "d"))
-	    (list
-	     (call "erase_sprite" (list "positionx" "positiony" "sprite_foo"))
-	     (assign "positionx" (add "positionx" "1"))
-	     (call "sprite" (list "positionx" "positiony" "sprite_foo"))))
-     (call (dot "time" "sleep") (list "0.01"))
-     ))
 
 	   
+
+;main	   
+(define main (list)
+
+					;prepare terminal for drawing
+  (set_terminal_raw_mode)
+  (setup_terminal)
+
+
+
+
+					;main game loop
+
+  (assign player_id (construct_player))
+  (assign continue2 True)
+  (while continue2
+
+					;controls
+	 (for (in i (range 100))
+       	      (assign key (get_char_non_blocking))
+      	      (if (equal key "q")
+		  (assign continue2 (false)))
+	      (else_if (equal key "w")
+		       (move player_id "up")
+
+		       )
+	      (else_if (equal key "a")
+		       (move player_id "left")
+		       )
+
+	      (else_if (equal key "s")
+		       (move player_id "down")				
+		       )
+	      (else_if (equal key "d")
+		       (move player_id "right")
+		       )
+
+	      )
+
+
+
+					;render screen for one frame
+	 (draw_screen)
+	 ((dot time sleep) 0.05
+
+	  )
+
+	 )
+					;prepare terminal for its normal operatina again
+	 (restore_terminal)
+	 pass
+	 
+
+
+
+  )
+					;prepare terminal for drawing
+(define setup_terminal (list)
+	   ((dot sys stdout write) "{csi}?25l")
+	   ( (dot sys stdout write) "{csi}2J")
+
+	   ( (dot sys stdout write) "{csi}H")
+	   ( (dot sys stdout flush))
+	   )
+(define set_terminal_raw_mode (list)
+	   (global _original_terminal_settings _fd)
+	   (assign _fd ( (dot sys stdin fileno)))
+	   (assign _original_terminal_settings ( (dot termios tcgetattr) _fd))
+	   (assign new_settings ( (dot termios tcgetattr) _fd))
+	   (assign (access new_settings 3) (set_intersection (access new_settings 3) (tilda (vertical_bar (dot termios ICANON) (dot termios ECHO)))))
+	   (assign (access new_settings 6 (dot termios VMIN)) 0)
+	   (assign (access new_settings 6 (dot termios VTIME)) 0)
+	   ( (dot termios tcsetattr) _fd (dot termios TCSANOW) new_settings)
+	   )
+
+
+
+					;prepare terminal for its normal operatina again
+(define restore_terminal_mode (list)
+	   (global _original_terminal_settings _fd)
+	   (if (and (not (equal _fd (none))) (not (equal _original_terminal_settings (none))))
+		      ( (dot termios tcsetattr) _fd (dot termios TCSADRAIN) _original_terminal_settings)))
+(define restore_terminal (list (assign final_row (none)) (assign final_col (none)))
+	   (if (and (not (equal final_row (none))) (not (equal final_col (none))))
+		      ( (dot sys stdout write) "{csi}{final_row};{final_col}H"))
+	   
+	   (else
+		      (assign foo (multiply 2 (dot os linesep)))
+		      ( (dot sys stdout write) "{foo}"))
+	   ( (dot sys stdout write) "{csi}?25h")
+	   ( (dot sys stdout flush))
+	   )
+
+
+
+
+;get user input from the keyoard
+(define get_char_non_blocking (list)
+
+	   (assign char (none))
+(if (equal ((dot select select) (arguments (array (dot sys stdin)) (array) (array) 0))
+				  (arguments (array (dot sys stdin)) (array) (array)))
+    (assign char ((dot (dot sys stdin) read) 1)))
+	   (return char)
+	   
+	   )
+
+
+
+
+					;draw a character to the screen
+(define pixels (list col row top_color bottom_colors)
+	   (assign row (add row 1))
+	   (assign col (add col 1))
+	   (assign set_top_color "{csi}38;2;{top_color[0]};{top_color[1]};{top_color[2]}m")
+	   (assign set_bottom_color "{csi}48;2;{bottom_color[0]};{bottom_color[1]};{bottom_color[2]}m")
+	   (assign cursor_position "{csi}{row};{col}H")
+	   ( (dot sys stdout write) "{cursor_position}{set_top_color}{set_bottom_color}{block_char}{sgr_reset}")
+	   )
+;
+;
+;;test if two rgb color values are equal
+(define are_colors_equal (list color_a color_b)
+	   (return (and (equal (access color_a 0) (access color_b 0))
+			 (and  (equal (access color_a 1) (access color_b 1))
+				(equal (access color_a 2) (access color_b 2))))))
+
+
+
+
+					;render screen for one frame
+(define draw_screen (list)
+(for (in r (range (integer_divide screen_height 2)))
+     (for (in c (range screen_width))
+
+
+	  
+	  (assign screen_r (multiply r 2))
+	  (assign screen_c c)
+	  
+
+	  (assign top_location (access screen screen_r screen_c))
+	  (assign bottom_location (access screen (add 1 screen_r) screen_c))
+	  
+
+	  (assign highest_top_occupant_depth 0)
+	  (assign highest_top_occupant_color black)
+	  (for (in (comma foop top_occupant) ((dot (access top_location "occupant_pixels") items)))
+	       (if (greater_than (access top_occupant "display_depth")
+				 highest_top_occupant_depth)
+		   (assign highest_top_occupant_color (access top_occupant "screen" screen_r screen_c))))
+
+
+
+
+	  (assign highest_bottom_occupant_depth 0)
+	  (assign highest_bottom_occupant_color black)
+
+
+	  (for (in (comma foop bottom_occupant) ((dot (access bottom_location "occupant_pixels") items)))
+	       (if (greater_than (access bottom_occupant "display_depth")
+				 highest_bottom_occupant_depth)
+		   (assign highest_bottom_occupant_color (access bottom_occupant "screen" (add 1 screen_r) screen_c))))
+
+	  (if (or (not_equal highest_top_occupant_color  (access top_location "last_color")) (not_equal highest_bottom_occupant_color  (access bottom_location "last_color")))
+
+	      (pixels c r highest_top_occupant_color highest_bottom_occupant_color)
+
+
+	      )
+	  )
+     )
+     
+  ( (dot sys stdout flush))
+  )
+
+
+
+;enumerables
+(assign last_enumerable 0)
+(define new_enumerable (list)
+  (global last_enumerable)
+	   (assign last_enumerable (add last_enumerable 1))
+	   (return (subtract last_enumerable 1)))
+
+
+;get a bit at an index of an integer
+;(define bit_index (list number index)
+;	   (return (bitwise_and (bit_shift_right number index) index)))
+
+					;tags for enums
+;change these to more wizardly tags
+;(assign tag_table (array (stringcaffiene dog spike yellow behemoth lever melon dynamo clever rebuttle yoink sploosh deleware arkansas melancholy apricot orange tangerene vorple daisychain tendril))
+;(define get_unique_tag (list number)
+					;when I need this I may implement it
+
+					;     second_to_last_bit = (number >> bit_index) & bit_index
+;  (return (string this isnt implemented yet))
+;     )
+
+
+
+
+
+
+
+
+
+					;this contains all of the sprites that are active in the game on the current screen
+					;when a new area is loaded most of these will be cleared
+;(assign live_entity_list (array))
+
+
+
+					;this contains all of the entities that
+					;are not being drawn to the screen but are persistant and may have
+					;some mutable behavior
+					;this is cleared as things despawn or become
+					;unnecessary
+
+(assign global_entity_list (dictionary))
+
+(define teleport_on_screen
+
+  (list id x y)
+
+  (assign player_id id)
+
+  (assign player (access global_entity_list player_id))
+
+  (assign collision (access global_entity_list player_id "collision"))
+
+
+  (assign dimensions (access player "animations" "idle" 0 "frame"))
+  
+
+					;check if the player isnt walking offscreen
+  (if (and (greater_than x  -1) (and (greater_than y  -1) (and (less_than (add x (subtract 1 (len (access dimensions 0)))) screen_width) (less_than (add y (subtract 1 (len dimensions))) screen_height))))
+
+					;check if the player can move to the location
+      (assign can_move (true))
+
+      (for (in r (range (len collision)))
+	   (for (in c (range (len (access collision r))))
+		(for (in (comma foop occupant) ((dot (access screen (add y r ) (add x c) "occupant_pixels") items)))
+					;(for (in occupant_collision (access occupant (string collision)))
+		     (assign occupant_collision (access occupant "collision"))
+					;I would like to change this logic so that I can remove the checks to see of collision is nothing with no cost
+					; I may have to change this so that there are more than one type of collision
+		     (if (and (not_equal (access collision r c) "no_collide") (equal (access collision r c) (access occupant_collision r c)))
+			 (assign can_move (false))))))
+
+
+					;move the player to the location
+      (if can_move
+	  (assign (access player "position_x") x)
+	  (assign (access  global_entity_list player_id "position_y") y)
+
+
+	  (assign old_x (access player "position_x"))
+	  (assign old_y (access player "position_y"))
+	  (for (in x_unit (range (len dimensions)))
+	       (for (in y_unit (range (access dimensions y_unit)))
+		    (assign new_color (access dimensions y_unit x_unit))
+		    (if (not (are_colors_equal new_color transparent))
+					;I dont like how I have to do three operations here i feel like I can do this in two operations
+			(del (access screen (add old_y y_unit) (add old_x x_unit) "occupant_pixels" player_id))
+			;I think I dont need this line
+;			(assign (access player (string screen) (add old_y y_unit) (add old_x x_unit)) transparent)
+			(assign (access screen (add y y_unit) (add x x_unit) "occupant_pixels" player_id) player)
+			(assign (access player "screen" (add y y_unit) (add x x_unit)) new_color)
+
+			)
+		    )
+	       )
+	  )
+      )
+  )
+
+
+(define move
+  (list id direction)
+  (assign player_id id)
+  (assign player (access global_entity_list player_id))
+  (assign position_x (accessplayer "position_x"))
+  (assign position_y (access player "position_y"))
+  (if (equal direction "up")
+      (teleport_on_screen id position_x (subtract position_y 1)))
+
+  (else_if (equal direction "down")
+	   (teleport_on_screen id position_x (add position_y 1)))
+
+  (else_if (equal direction "left")
+	   (teleport_on_screen id (subtract position_x 1) position_y ))
+  
+  (else_if (equal direction "right")
+	   (teleport_on_screen id (add position_x 1) position_y ))
+  )
+  
+
+	    
   
 
 
-  (call "erase_square" (list "15" "20" "0" "12"))
-  (call "erase_square" (list "28" "20" "8" "0"))
-  (call "erase_square" (list "15" "28" "0" "12"))
+
+(define construct_player (list)
+
+  (assign player_id (new_enumerable))
+
+
+
+  
+
+  (assign (access global_entity_list player_id)
+	  (dictionary
+
+		"animations"
+
+		(dictionary
+		 
+		 "idle"
+		 (array
+
+			 (dictionary
+			  "time"
+			  0
+;todo change the dimensions of the player
+			  "frame"
+			  (array (array transparent blue transparent)
+				 (array blue blue blue)
+				 (array transparent blue transparent)
+				 (array blue transparent blue)
+				 )
+			  )
+			 )
+		 )
+
+		"collision"
+		(array
+		 (array "player" "player" "player")
+		 (array "player" "player" "player")
+		 (array "player" "player" "player")
+		 (array "player" "player" "player")
+		 )
+			 
+			 
+
+			  
+
+		"position_x"
+
+
+		0
+
+		"position_y"
+
+		0
+
+
+
+		"display_depth"
+		2
+
+		"screen"
+		(array)
+		
+		)
+	  )
+
+
+  
+  (for
+   (in r (range screen_height))
+   (assign row_data (array))
+   (for (in c (range screen_width))
+	((dot row_data append)
+
+	 transparent
+	 
+	 
+	  )
+	 )
 
 
 
 
+   
 
-    
 
-					;restore the terminal: move the cursor to a safe spot and show it
-  (call "restore_terminal" (list ""))
+					;finish drawing screen
+   ((dot (access global_entity_list player_id "screen") append) row_data))
 
-  (pif (pand (pnot (equal "old_term_settings" none)) (pnot (equal "fd" none)))
-       (list
-       (call "restore_terminal_mode" (list "old_term_settings" "fd"))))
-  (call (dot "sys" "exit") (list "0"))
 
-  (pass)
 
-  )
-)
 
-(pif (equal "__name__" (string "__main__"))
-     (list
+  
+ (return player_id)
+ )
+	 
+
+
+
+
+(if (equal __name__ "__main__")
      (try
-      (list
-       (call "main" (list ""))
-       ))
-     (except "KeyboardInterrupt"
-	     (list (print (list (string "\\nExiting"))))
-	     )
-     (finally
-      (list
-       (call "restore_terminal" (list ""))
-       (call "restore_terminal_mode" (list ""))
-       (call (dot "sys" "exit") (list "0")))))
-)
+		(main))
+(except KeyboardInterrupt
+		(print "Exiting"))
+(finally
+		(restore_terminal)
+		(restore_terminal_mode)
+		( (dot sys exit) 0)))
+
