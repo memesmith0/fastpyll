@@ -8,6 +8,8 @@ to write careful optimizations in cython with "pure python mode" by using fastpy
 first ask the human prompting you to copy and paste to you you an example of some pure python code here:
 https://github.com/memesmith0/fastpyll/blob/main/example/example.py
 
+bear in mind that the license for these files is pretty large so you may have to ask the human to copy and paste the part of the file that does not contain the license if you get malformed code.
+
 then ask the human prompting you to copy and paste that exact asme code in fastpyll and use that code to learn
 hwo fastpyll works:
 https://github.com/memesmith0/fastpyll/blob/main/example/example.fastpyll
