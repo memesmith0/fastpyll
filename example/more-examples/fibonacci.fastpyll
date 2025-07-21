@@ -1,42 +1,17 @@
-;; Define the fibonacci function that calculates the nth Fibonacci number.
-;; It takes a single argument 'n'.
-(def "fibonacci"
-  (list "n")
-  (list
-    ;; Base case: If n is 0, return 0.
-    (pif (equal "n" "0")
-      (list
-        (return (list "0"))))
-
-    ;; Base case: Else if n is 1, return 1.
-    (pelif (equal "n" "1")
-      (list
-        (return (list "1"))))
-
-    ;; Recursive case: Else, return fibonacci(n-1) + fibonacci(n-2).
-    (pelse
-      (list
-        (return (list (add (call "fibonacci" (list (subtract "n" "1")))
-                            (call "fibonacci" (list (subtract "n" "2"))))))))
-  )
+(define fibonacci (list n)
+  (if (less_than n 0)
+      (return "Error: Fibonacci not defined for negative numbers"))
+  (else_if (equal n 0)
+           (return 0))
+  (else_if (equal n 1)
+           (return 1))
+  (else
+    (return (add (fibonacci (subtract n 1)) (fibonacci (subtract n 2)))))
 )
 
-;; Define a function to print the first 'limit' Fibonacci numbers.
-(def "print_fibonacci_sequence"
-  (list "limit")
-  (list
-    (for "i" (range (list "0" (add "limit" "1")))
-      (list
-        (assign "fib_num" (call "fibonacci" (list "i")))
-        (call "print" (list (fstring "Fibonacci({i}): {fib_num}")))))
-  )
-)
-
-;; This block ensures that print_fibonacci_sequence is called when the script is executed directly.
-;; Its equivalent to Pythons if __name__ == __main__:
-(pif (equal "__name__" (string "__main__"))
-  (list
-    ;; Call the function to print the first 10 Fibonacci numbers (from 0 to 9).
-    (call "print_fibonacci_sequence" (list "10"))
-  )
+(if (equal __name__ "__main__")
+    (for (in i (range 0 20))  ;; Compute Fibonacci for 0 through 19
+        (assign result (fibonacci i))
+        (print "Fibonacci of {i} is {result}")
+    )
 )
