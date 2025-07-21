@@ -1,0 +1,48 @@
+(define add (list a b)
+  (return (add a b))
+)
+
+(define subtract (list a b)
+  (return (subtract a b))
+)
+
+(define multiply (list a b)
+  (return (multiply a b))
+)
+
+(define divide (list a b)
+  (if (equal b 0)
+      (return "Error: Division by zero"))
+  (else
+    (return (float_divide a b)))
+)
+
+(define modulo (list a b)
+  (if (equal b 0)
+      (return "Error: Modulo by zero"))
+  (else
+    (return ( (dot operator mod) a b )))  ;; Using operator.mod for %
+)
+
+(if (equal __name__ "__main__")
+    (print "Simple Calculator - Enter two numbers and an operation (+, -, *, /, %)")
+    (assign num1 (float (input "Enter first number: ")))
+    (assign num2 (float (input "Enter second number: ")))
+    (assign operation (input "Enter operation (+, -, *, /, %): "))
+
+    (assign result (none))
+    (if (equal operation "+")
+        (assign result (add num1 num2)))
+    (else_if (equal operation "-")
+             (assign result (subtract num1 num2)))
+    (else_if (equal operation "*")
+             (assign result (multiply num1 num2)))
+    (else_if (equal operation "/")
+             (assign result (divide num1 num2)))
+    (else_if (equal operation "%")
+             (assign result (modulo num1 num2)))
+    (else
+      (assign result "Error: Invalid operation"))
+
+    (print "Result: {result}")
+)
