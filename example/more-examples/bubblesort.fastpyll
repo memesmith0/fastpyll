@@ -1,0 +1,24 @@
+(define bubble_sort (list arr)
+  (assign n (len arr))
+  (for (in i (range n))  ;; Outer loop for passes
+      (for (in j (range 0 (subtract (subtract n i) 1)))  ;; Inner loop for comparisons
+          (if (greater_than (access arr j) (access arr (add j 1)))
+              ;; Swap if out of order
+              (assign temp (access arr j))
+              (assign (access arr j) (access arr (add j 1)))
+              (assign (access arr (add j 1)) temp)
+          )
+      )
+  )
+  (return arr)  ;; Return the sorted array (sorted in-place)
+)
+
+(if (equal __name__ "__main__")
+    ;; Sample unsorted list
+    (assign my_list (array 64 34 25 12 22 11 90 5 78 3))
+    (print "Original list: {my_list}")
+
+    ;; Sort and print
+    (assign sorted_list (bubble_sort my_list))
+    (print "Sorted list: {sorted_list}")
+)
