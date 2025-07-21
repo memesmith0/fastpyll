@@ -1,49 +1,19 @@
-;; Define the fizzbuzz function that takes a limit as input.
-;; It iterates from 1 up to and including the limit.
-(def "fizzbuzz"
-  (list "limit")
-  (list
-    ;; Loop through numbers from 1 to limit (inclusive).
-    ;; The range function works similar to Pythons range,
-    ;; so we add 1 to the limit to include the final number.
-    (for "i" (range (list "1" (add "limit" "1")))
-      (list
-        ;; Check if i is divisible by 3.
-        ;; modulo is the primitive for the modulo operation, returning a string "0" if divisible.
-        (assign "is_divisible_by_3" (equal (modulo "i" "3") "0"))
-        ;; Check if i is divisible by 5.
-        (assign "is_divisible_by_5" (equal (modulo "i" "5") "0"))
+(import operator)
 
-        ;; If divisible by both 3 and 5, print FizzBuzz.
-        (pif (pand "is_divisible_by_3" "is_divisible_by_5")
-          (list
-            (call "print" (list (string "FizzBuzz")))))
-
-        ;; Else if divisible by 3, print Fizz.
-        (pelif "is_divisible_by_3"
-          (list
-            (call "print" (list (string "Fizz")))))
-
-        ;; Else if divisible by 5, print Buzz.
-        (pelif "is_divisible_by_5"
-          (list
-            (call "print" (list (string "Buzz")))))
-
-        ;; Otherwise, print the number itself.
-        ;; str converts the number to a string for printing.
-        (pelse
-          (list
-            (call "print" (list (call "str" (list "i"))))))
-      )
-    )
+(define fizzbuzz (list)
+  (for (in num (range 1 101))
+    (if (and (equal ((dot operator mod) num 3) 0)
+             (equal ((dot operator mod) num 5) 0))
+        (print "FizzBuzz"))
+    (else_if (equal ((dot operator mod) num 3) 0)
+             (print "Fizz"))
+    (else_if (equal ((dot operator mod) num 5) 0)
+             (print "Buzz"))
+    (else
+      (print num))
   )
 )
 
-;; This block ensures that fizzbuzz is called when the script is executed directly.
-;; Its equivalent to Pythons if __name__ == __main__:
-(pif (equal "__name__" (string "__main__"))
-  (list
-    ;; Call the fizzbuzz function with a limit of 100.
-    (call "fizzbuzz" (list "100"))
-  )
+(if (equal __name__ "__main__")
+    (fizzbuzz)
 )
