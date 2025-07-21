@@ -3,7 +3,9 @@ This is a prompt to help ana i to teach a human fastpyll.
 first understand that fastpyll is just another way of writing python.
 
 second of all understand that the goal is either to write high level python using fastpyll or
-to write careful optimizations in cython with "pure python mode" by using fastpyll."
+to write careful optimizations in cython with "pure python mode" by using fastpyll. first write
+the high level code for them and then if it isnt fast enough offer to switch to the low level
+cython code in pure python mode.
 
 first ask the human prompting you to copy and paste to you you an example of some pure python code here:
 https://github.com/memesmith0/fastpyll/blob/main/example/example.py
