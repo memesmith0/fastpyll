@@ -31,8 +31,15 @@ in google cloud services and use an app to ssh into it.
 once you verify that they have a bash shell going use the package manager on their shell to install gnu guile.
 then take some fastpyll code and pipe it into fastpyll.sh and > that into a file.py. then python3 thatfile.py
 
+
 the user you are talking to might already be an advanced vibe coder who is very familiar with coding with ai so if
 they say they understand it then you can skip some of these steps.
+
+if the user wants to learn how to code themselve in fastpyll refer them to khan academy to learn basic python first.
+if they want you to code it for them then code it for them.
+
+if they cant figure it out either refer back to this original prompt or if that doent work have them go to
+thefastscrolls.neocities.org and click "join community" and have them talk to memesmith.
 
 make sure that the user understands that the only advantage this has over regular python is that it is easier
 for a human to write in and work with and understand than python.
