@@ -699,6 +699,7 @@
 
 
 (define fastpyll_string (lambda (x) (string-append "\"" x "\"")))
+(define fastpyll_unpack (lambda (x) (string-append "*" x)))
 
 (define fastpyll_fstring (lambda (x) (string-append "f" (fastpyll_string x))))
 
@@ -1394,4 +1395,3 @@
     (map fastpyll_fastpyll_helper x)))
 
 (load "/dev/stdin")
-
