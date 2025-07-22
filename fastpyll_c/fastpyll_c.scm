@@ -690,6 +690,11 @@
 
 (define fastpyll_c_helper (lambda (d x) (if (pair? x) (string-append (fastpyll_c_indent d) (car x) ";\n\n" (fastpyll_c_helper d (cdr x))) (string-append (fastpyll_c_indent d) "}"))))
 
+
+
+(define fastpyll_c_struct_helper (lambda (d x) (if (pair? x) (string-append (fastpyll_c_indent d) (car x) ";\n\n" (fastpyll_c_struct_helper d (cdr x))) (string-append (fastpyll_c_indent d) ""))))
+
+
 (define fastpyll_c_codeblock (lambda (d x . y) (string-append x ":\n\n" (fastpyll_c_helper d y))))
 
 
@@ -720,6 +725,7 @@
 				       (eq? (car x) 'fastpyll_c_if)
 				       (eq? (car x) 'fastpyll_c_else_if)
 				       (eq? (car x) 'fastpyll_c_for)
+				       (eq? (car x) 'fastpyll_c_struct)
 				       
 				       (eq? (car x) 'fastpyll_c_else)
 ;				       (eq? (car x) 'fastpyll_c_try)
@@ -827,6 +833,8 @@
 
 
 (define fastpyll_c_for (lambda (d x . y) (string-append "for( " x " ) {\n\n" (fastpyll_c_helper d y))))
+
+(define fastpyll_c_struct (lambda (d x a . y) (string-append "struct " x " {\n\n" (fastpyll_c_struct_helper d y) "} " a " ;")))
 
 (define fastpyll_c_define (lambda (d x a . y)
 				 (string-append x "( " (apply fastpyll_c_arguments a) " ) {\n\n" (fastpyll_c_helper d y))))
