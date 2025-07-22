@@ -683,7 +683,6 @@
              (ice-9 eval-string)     ;; provides eval-string
 )
 
-;fastpyll_c source code
 
 (define fastpyll_c_indent (lambda (x) (if (= x 0) "" (string-append "    " (fastpyll_c_indent (- x 1))))))
 
@@ -744,7 +743,10 @@
 ;	(define fastpyll_c_none (lambda () "None"))
 	(define fastpyll_c_pgroup (lambda (left right . x) (apply string-append (append (list left) (fastpyll_c_arguments x) (list right )))))
 	(define fastpyll_c_group (lambda (. x) (apply fastpyll_c_pgroup (append (list "( " " )") x))))
-	(define fastpyll_c_arguments (lambda (. x) (if (= (length x) 1) (car x) (if (> (length x) 1) (string-append (car x) " , " (apply fastpyll_c_arguments (cdr x)))""))))
+(define fastpyll_c_arguments (lambda (. x) (if (= (length x) 1) (car x) (if (> (length x) 1) (string-append (car x) " , " (apply fastpyll_c_arguments (cdr x)))""))))
+
+(define fastpyll_c_asm_arguments (lambda (. x) (if (= (length x) 1) (car x) (if (> (length x) 1) (string-append (car x) " " (apply fastpyll_c_arguments (cdr x)))""))))
+(define fastpyll_c__asm__ (lambda ( . x ) (string-append "__asm__( " (apply fastpyll_c_asm_arguments x)" )")))
 	(define fastpyll_c_array (lambda (. x) (apply fastpyll_c_pgroup (list "{ " " }" (apply fastpyll_c_arguments x)))))
 	(define fastpyll_c_call (lambda (x . y) (string-append x "( " (apply fastpyll_c_arguments y) " )")))
 ;	(define fastpyll_c_in (lambda (x y) (string-append x " in " y)))
@@ -757,6 +759,7 @@
 
 (define fastpyll_c_arrow_helper (lambda (x) (string-append "->" (if (> (length x) 0) (car x) "")  (if (> (length x) 1) (fastpyll_c_dot_helper (cdr x)) ""))))
 (define fastpyll_c_arrow (lambda (b . x) (string-append b (fastpyll_c_dot_helper x))))
+
 
 
 ;(define fastpyll_c_dictionary_helper (lambda ( . x)
@@ -1079,6 +1082,7 @@
 ;;     ((eq? symbol 'integer_divide) 'fastpyll_c_integer_divide)
      ((eq? symbol 'divide) 'fastpyll_c_divide)
      ((eq? symbol 'multiply) 'fastpyll_c_multiply)
+     ((eq? symbol '__asm__) 'fastpyll_c__asm__)
      ((eq? symbol 'and) 'fastpyll_c_and)
      ((eq? symbol 'or) 'fastpyll_c_or)
      ((eq? symbol 'not_equal) 'fastpyll_c_not_equal)
