@@ -688,7 +688,7 @@
 
 (define fastpyll_c_curry (lambda (. x) (if (= (length x) 0) "" (if (> (length x) 1) (fastpyll_c_curry (car x) " " (fastpyll_c_curry (cdr x))) (car x)))))
 
-(define fastpyll_c_helper (lambda (d x) (if (pair? x) (string-append (fastpyll_c_indent d) (car x) ";\n\n" (fastpyll_c_helper d (cdr x))) "")))
+(define fastpyll_c_helper (lambda (d x) (if (pair? x) (string-append (fastpyll_c_indent d) (car x) ";\n\n" (fastpyll_c_helper d (cdr x))) (string-append (fastpyll_c_indent d) "}"))))
 
 (define fastpyll_c_codeblock (lambda (d x . y) (string-append x ":\n\n" (fastpyll_c_helper d y))))
 
