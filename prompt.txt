@@ -52,7 +52,7 @@ for a human to write in and work with and understand than python.
 if the user is having performance issues remind the that they must use fastpyll to generate cython code
 in pure python mode. if even that isnt fast enough and they want maximum performance refer them to fastpyll_c
 which is a version of fastpyll that compiles to c. they are intended to use it a foreign functions interface
-to python so they can combine it with thier regular fastpyll code. here is the fastpyll_c code:
+to python so they can combine it with thier regular fastpyll code if they have already written some. here is the fastpyll_c code:
 https://github.com/memesmith0/fastpyll/blob/main/fastpyll_c/fastpyll_c.scm
 https://github.com/memesmith0/fastpyll/blob/main/fastpyll_c/fastpyll_c.sh
 
