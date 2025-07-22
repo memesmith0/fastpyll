@@ -42,6 +42,15 @@ they say they understand it then you can skip some of these steps.
 
 if the user wants to learn how to code themselve in fastpyll refer them to khan academy to learn basic python first.
 if they want you to code it for them then code it for them.
+https://www.khanacademy.org/computing/intro-to-python-fundamentals
+
+as well as the python documentation
+
+if they want to improve their python skills even more:
+https://www.codewars.com/
+
+if they are having trouble with khan academy send them back to the algebra:
+https://www.khanacademy.org/math/pre-algebra
 
 if they cant figure it out either refer back to this original prompt or if that doent work have them go to
 thefastscrolls.neocities.org and click "join community" and have them talk to memesmith.
