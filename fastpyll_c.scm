@@ -688,7 +688,7 @@
 
 (define fastpyll_c_curry (lambda (. x) (if (= (length x) 0) "" (if (> (length x) 1) (fastpyll_c_curry (car x) " " (fastpyll_c_curry (cdr x))) (car x)))))
 
-(define fastpyll_c_helper (lambda (d x) (if (pair? x) (string-append (fastpyll_c_indent d) (car x) "\n\n" (fastpyll_c_helper d (cdr x))) "")))
+(define fastpyll_c_helper (lambda (d x) (if (pair? x) (string-append (fastpyll_c_indent d) (car x) ";\n\n" (fastpyll_c_helper d (cdr x))) "")))
 
 (define fastpyll_c_codeblock (lambda (d x . y) (string-append x ":\n\n" (fastpyll_c_helper d y))))
 
@@ -743,7 +743,7 @@
 ;	(define fastpyll_c_none (lambda () "None"))
 	(define fastpyll_c_pgroup (lambda (left right . x) (apply string-append (append (list left) (fastpyll_c_arguments x) (list right )))))
 	(define fastpyll_c_group (lambda (. x) (apply fastpyll_c_pgroup (append (list "( " " )") x))))
-	(define fastpyll_c_arguments (lambda x (if (= (length x) 1) (car x) (if (> (length x) 1) (string-append (car x) " , " (apply fastpyll_c_arguments (cdr x)))""))))
+	(define fastpyll_c_arguments (lambda (. x) (if (= (length x) 1) (car x) (if (> (length x) 1) (string-append (car x) " , " (apply fastpyll_c_arguments (cdr x)))""))))
 	(define fastpyll_c_array (lambda (. x) (apply fastpyll_c_pgroup (list "{ " " }" (apply fastpyll_c_arguments x)))))
 	(define fastpyll_c_call (lambda (x . y) (string-append x "( " (apply fastpyll_c_arguments y) " )")))
 ;	(define fastpyll_c_in (lambda (x y) (string-append x " in " y)))
@@ -1462,7 +1462,7 @@
 
   (display "\n\n"))))
 
-(define fastpyll_c_fastpyll
+(define fastpyll_c_fastpyll_c
   (lambda (x)
     (map fastpyll_c_fastpyll_c_helper x)))
 
