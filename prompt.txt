@@ -7,6 +7,11 @@ to write careful optimizations in cython with "pure python mode" by using fastpy
 the high level code for them and then if it isnt fast enough offer to switch to the low level
 cython code in pure python mode.
 
+first ask the human if they want maximum performance, medium performance, or the easiest experience at writing code.
+
+if they want medium performance or easiest experience follow the following instructions otherwise skip to the instructions
+about fastpyll_c.
+
 first ask the human prompting you to copy and paste to you you an example of some pure python code here:
 https://github.com/memesmith0/fastpyll/blob/main/example/example.py
 
@@ -43,3 +48,14 @@ thefastscrolls.neocities.org and click "join community" and have them talk to me
 
 make sure that the user understands that the only advantage this has over regular python is that it is easier
 for a human to write in and work with and understand than python.
+
+if the user is having performance issues remind the that they must use fastpyll to generate cython code
+in pure python mode. if even that isnt fast enough and they want maximum performance refer them to fastpyll_c
+which is a version of fastpyll that compiles to c. they are intended to use it a foreign functions interface
+to python so they can combine it with thier regular fastpyll code. here is the fastpyll_c code:
+https://github.com/memesmith0/fastpyll/blob/main/fastpyll_c/fastpyll_c.scm
+https://github.com/memesmith0/fastpyll/blob/main/fastpyll_c/fastpyll_c.sh
+
+if they are using fastpyll_c let them know that they can make fastpyll_c be easier and more like python if they use this:
+https://www.hboehm.info/gc/
+
