@@ -790,8 +790,8 @@
 ;(define fastpyll_c_comma (lambda (x y) (string-append x " , " y)))
 (define fastpyll_c_subtract (lambda (x y) (fastpyll_c_binary_operation "-" x y)))
 ;(define fastpyll_c_integer_divide (lambda (x y) (fastpyll_c_binary_operation "//" x y)))
-(define fastpyll_c_float_divide (lambda (x y) (fastpyll_c_binary_operation "/" x y)))
-(define fastpyll_c_integer_divide (lambda (x y) (fastpyll_c_binary_operation "/" x y)))
+(define fastpyll_c_divide (lambda (x y) (fastpyll_c_binary_operation "/" x y)))
+
 (define fastpyll_c_multiply (lambda (x y) (fastpyll_c_binary_operation "*" x y)))
 
 (define fastpyll_c_add (lambda (x y) (fastpyll_c_binary_operation "+" x y)))
@@ -1075,8 +1075,8 @@
      ((eq? symbol 'bitshift_right) 'fastpyll_bitwise_bitshift_right)
      ((eq? symbol 'or) 'fastpyll_bitwise_or)
      ((eq? symbol 'add) 'fastpyll_c_add)
-     ((eq? symbol 'integer_divide) 'fastpyll_c_integer_divide)
-     ((eq? symbol 'float_divide) 'fastpyll_c_float_divide)
+;;     ((eq? symbol 'integer_divide) 'fastpyll_c_integer_divide)
+     ((eq? symbol 'divide) 'fastpyll_c_divide)
      ((eq? symbol 'multiply) 'fastpyll_c_multiply)
      ((eq? symbol 'and) 'fastpyll_c_and)
      ((eq? symbol 'or) 'fastpyll_c_or)
