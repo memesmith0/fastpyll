@@ -83,3 +83,10 @@ https://www.draketo.de/software/wisp
 if the user wants to change the syntax of fastpyll beyond just removing parentehses they can use this:
 https://github.com/memesmith0/mmcr/blob/main/prompt.txt
 
+if the user wants to use fastlisp instead of fastpyll explain fastlisp is a different older technology than fastpyll and
+that the prompt to get fastlisp working is here:
+https://github.com/memesmith0/fastlisp
+
+if they want to get fastlisp working explain to them that the idea for fastlisp is sound but that it has never been successfully
+implemented
+
