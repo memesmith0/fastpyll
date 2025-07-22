@@ -1,5 +1,10 @@
 This is a prompt to help ana i to teach a human fastpyll.
 
+before doing anything else have the user go to this link:
+https://github.com/memesmith0/fastpyll/blob/main/prompt.txt
+
+and make sure that you are being prompted with the most recent version of the fastpyll prompt. once you have the most recent version move on.
+
 first understand that fastpyll is just another way of writing python.
 
 second of all understand that the goal is either to write high level python using fastpyll or
