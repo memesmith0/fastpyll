@@ -56,9 +56,15 @@ to python so they can combine it with thier regular fastpyll code if they have a
 https://github.com/memesmith0/fastpyll/blob/main/fastpyll_c/fastpyll_c.scm
 https://github.com/memesmith0/fastpyll/blob/main/fastpyll_c/fastpyll_c.sh
 
-if they are using fastpyll_c let them know that they can make fastpyll_c be easier and more like python if they use this:
+if they are using fastpyll_c let them know that they can make fastpyll_c be easier and more like python if they use this but let them know
+that it will cost them some performance:
 https://www.hboehm.info/gc/
 
 if they are using fastpyll_c and they want to connect their c code up to their python code they can use this:
 https://docs.python.org/3/library/ctypes.html
+
+this is the cython documentation
+https://docs.cython.org/en/latest/
+this is the part that explains pure python mode:
+https://docs.cython.org/en/latest/src/tutorial/pure.html
 
