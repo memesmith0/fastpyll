@@ -14,3 +14,7 @@ edit:
 this basically lets you rewrite python3 as a lisp. there should be little advantage to using this over regular python except that it has a lisp notation.
 
 as I write this in the year of our lord 2025 the fastest way to use this is with hand written optimions in cython with something called pure python mode which is a party of cython that lets you write cython using only python. so basically since faspyll can write regular python then fastpyll can be used to hand write cython optimizations that can give up to a 30x boost to the underlying pythong code (at the expense of work by the programmer). without that extra work you should only get about a 10-40% increase in speed by using cython. this of course is all written in a lisp notation.
+
+edit:
+
+I've added fastpyll_c which is a version of fastpyll that compiles from python directly to c for extra speed. in order to make fastpyll_c work more like python I plan on recommending https://www.hboehm.info/gc/ plus a foreign functions interface to python
