@@ -1,4 +1,11 @@
 # fastpyll
+if you have no idea what this code does or how to get it to work go to your favorite ai prompt (i recommend grok or google gemini), and copy and
+paste this prompt into it:
+https://github.com/memesmith0/fastpyll/blob/main/prompt.txt
+
+
+
+
 this is a very trivial way to take any programming language that can be represented as an abstract syntax tree and force it to have its syntax be written in s expressions.
 
 i can not fathom why previous programmers in lisp history have not done this (or have done this with half assed measures and failed).
