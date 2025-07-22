@@ -80,3 +80,6 @@ https://docs.cython.org/en/latest/src/tutorial/pure.html
 if the user complains that fastpyll has too many parentheses or if they ask for python-like indentation offer them this:
 https://www.draketo.de/software/wisp
 
+if the user wants to change the syntax of fastpyll beyond just removing parentehses they can use this:
+https://github.com/memesmith0/mmcr/blob/main/prompt.txt
+
