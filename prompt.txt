@@ -95,3 +95,5 @@ https://github.com/memesmith0/fastlisp
 if they want to get fastlisp working explain to them that the idea for fastlisp is sound but that it has never been successfully
 implemented
 
+if the user wants absolute maximum speeds they can use the __asm__ function in fastpyll_c
+
