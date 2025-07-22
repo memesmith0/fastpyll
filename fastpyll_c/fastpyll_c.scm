@@ -875,6 +875,16 @@
 (define fastpyll_c_pre_decrement (lambda (x) (string-append "--" x)))
 
 
+(define fastpyll_c_define_macro (lambda (x y z) (string-append "#define " x "( " (apply fastpyll_c_arguments y) " ) " z )))
+
+(define fastpyll_c_end_if (lambda () "endif"))
+(define fastpyll_c_if_not_defined (lambda (x) (string-append "#ifndef " x)))
+(define fasstpyll_c_enum (lambda (x y) (string-append "enum " x " " y)))
+(define fastpyll_c_type_define (lambda (x y ) (string-append "typedef " x " " y)))
+
+(define fastpyll_c_type_define_struct (lambda ( . a) (string-append "typedef " (apply fastpyll_c_struct a))))
+
+
 (define fastpyll_c_stringify
   (lambda (b counter x)
     (cond
@@ -1087,10 +1097,17 @@
      ((eq? symbol 'bitshift_right) 'fastpyll_bitwise_bitshift_right)
      ((eq? symbol 'or) 'fastpyll_bitwise_or)
      ((eq? symbol 'add) 'fastpyll_c_add)
+     ((eq? symbol 'if_not_defined) 'fastpyll_c_if_not_defined)
+     ((eq? symbol 'end_if) 'fastpyll_c_end_if)
+     ((eq? symbol 'enum) 'fastpyll_c_enum)
+     ((eq? symbol 'type_define) 'fastpyll_c_type_define)
+     ((eq? symbol 'type_define_struct) 'fastpyll_c_type_define_struct)
+
 ;;     ((eq? symbol 'integer_divide) 'fastpyll_c_integer_divide)
      ((eq? symbol 'divide) 'fastpyll_c_divide)
      ((eq? symbol 'multiply) 'fastpyll_c_multiply)
      ((eq? symbol '__asm__) 'fastpyll_c__asm__)
+     ((eq? symbol 'define_macro) 'fastpyll_c_define_macro)
      ((eq? symbol 'and) 'fastpyll_c_and)
      ((eq? symbol 'or) 'fastpyll_c_or)
      ((eq? symbol 'not_equal) 'fastpyll_c_not_equal)
