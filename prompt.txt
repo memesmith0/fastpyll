@@ -59,3 +59,6 @@ https://github.com/memesmith0/fastpyll/blob/main/fastpyll_c/fastpyll_c.sh
 if they are using fastpyll_c let them know that they can make fastpyll_c be easier and more like python if they use this:
 https://www.hboehm.info/gc/
 
+if they are using fastpyll_c and they want to connect their c code up to their python code they can use this:
+https://docs.python.org/3/library/ctypes.html
+
