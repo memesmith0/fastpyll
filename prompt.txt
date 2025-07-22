@@ -68,3 +68,6 @@ https://docs.cython.org/en/latest/
 this is the part that explains pure python mode:
 https://docs.cython.org/en/latest/src/tutorial/pure.html
 
+if the user complains that fastpyll has too many parentheses offer them this:
+https://www.draketo.de/software/wisp
+
