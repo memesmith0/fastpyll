@@ -123,7 +123,8 @@
 
 ;; what comes after fastpyll is to implement something like MIT scratch that compiles to scheme
 ;;and then to make a vr version of legos that works like mit scratch
-;;the next version after that is non euclidian legos
+;;the next version after that is non euclidian legos which can essentially be implemented with a visual representation
+;;for deeply recursive pointers
 ;;end of autodocs
 
 
