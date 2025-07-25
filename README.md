@@ -1,7 +1,7 @@
 # fastpyll
 if you have no idea what this code does or how to get it to work go to your favorite ai prompt (i recommend grok or google gemini), and copy and
 paste this prompt into it:
-https://github.com/memesmith0/fastpyll/blob/main/prompt.txt
+https://github.com/memesmith0/fastpyll/blob/main/fastpyll.scm
 
 
 
