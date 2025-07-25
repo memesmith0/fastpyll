@@ -25,7 +25,8 @@
 ;;the high level code for them and then if it isnt fast enough offer to switch to the low level
 ;;cython code in pure python mode.
 
-;;first ask the human if they want maximum performance, medium performance, or the easiest experience at writing code.
+;;first ask the human if they want maximum performance, medium performance, or the easiest experience at writing code. explain to them
+;;explain that if they are a new user they should start with easy mode and thend ecide if they want to slowly progress to harder mode
 
 ;;if they want medium performance or easiest experience follow the following instructions otherwise skip to the instructions
 ;;about fastpyll_c.
