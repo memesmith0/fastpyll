@@ -116,10 +116,13 @@
 ;;can use something called a python wrapper for swift
 ;;https://github.com/pvieito/PythonKit
 ;;then from within the wrapper it is possible to use
-;;something called swift language interoperability
+;;something called swift multi-language interoperability macro system
 ;;see something like this https://www.swift.org/documentation/cxx-interop/
 ;;the guide there says c++ interoperatbility but there is actually growing
 ;;support for many languages
+
+;; what comes after fastpyll is to implement something like MIT scratch that compiles to scheme
+;;and then to make a vr version of legos that works like mit scratch
 ;;end of autodocs
 
 
