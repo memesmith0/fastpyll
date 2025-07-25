@@ -125,6 +125,8 @@
 ;;and then to make a vr version of legos that works like mit scratch
 ;;the next version after that is non euclidian legos which can essentially be implemented with a visual representation
 ;;for deeply recursive pointers
+
+;;to get to ada level performances you would want the swift interop technology to have proof checking and borrow checking
 ;;end of autodocs
 
 
