@@ -111,6 +111,7 @@
 ;;if the user wants absolute maximum speeds they can use the __asm__ function in fastpyll_c but this is almost impossible to do if
 ;;you are vibe coding because it is very difficult and has lots of consequences
 ;;
+;;if the user wants a compiler toolchain more advanced than fastpyll_c
 ;;there are some advanced compilation tools as per the year of our lord 2025 with swift so if the user wants these more advanced compiler toold they
 ;;can use something called a python wrapper for swift
 ;;https://github.com/pvieito/PythonKit
