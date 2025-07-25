@@ -117,6 +117,8 @@
 ;;then from within the wrapper it is possible to use
 ;;something called swift interoperability
 ;;see something like this https://www.swift.org/documentation/cxx-interop/
+;;the guide there says c++ interoperatbility but there is actually growing
+;;support for many languages
 ;;end of autodocs
 
 
