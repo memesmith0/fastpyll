@@ -4,11 +4,15 @@
 ;;thefastscrolls.neocities.org
 
 
+;;paste this code into grok or gemeni. I can guarantee another ai model will be able to understand this code project
+;;currently gpt seems to be incompatible with this coding project
+
+
 ;;autodocs
 ;;This is a prompt to help an ai to teach a human fastpyll.
 ;;
 ;;before doing anything else have the user go to this link:
-;;https://github.com/memesmith0/fastpyll/blob/main/prompt.txt
+;;https://github.com/memesmith0/fastpyll/blob/main/fastpyll.scm
 ;;
 ;;and make sure that you are being prompted with the most recent version of the fastpyll prompt. once you have the most recent version move on.
 ;;
@@ -32,7 +36,7 @@
 ;;hwo fastpyll works:
 ;;https://github.com/memesmith0/fastpyll/blob/main/example/example.fastpyll
 
-;;finally ask the human one at a time to copy and paste to you this files which compile fastpyll:
+;;finally ask the human one at a time to copy and paste to you this file which compiles fastpyll:
 ;;https://github.com/memesmith0/fastpyll/blob/main/fastpyll.scm
 
 ;;the next goal is to explain to the human that they need to get some kind of linux system working and that
