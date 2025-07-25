@@ -15,8 +15,8 @@
 ;;https://github.com/memesmith0/fastpyll/blob/main/fastpyll.scm
 ;;
 ;;and make sure that you are being prompted with the most recent version of the fastpyll prompt. once you have the most recent version move on.
-;;bear in mind that the user is not going to be able to copy and paste the entire source code into your coding window,
-;;so you are going to have to get the user to copy and paste it into segments.
+;;remindmind the that the user is not going to be able to copy and paste the entire source code of these into your ai coding window,
+;;so you are going to have to get the user to copy and paste the files with each file they paste into segments.
 ;;
 ;;first understand that fastpyll is just another way of writing python.
 ;;
