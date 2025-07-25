@@ -74,6 +74,10 @@ if they are using fastpyll_c let them know that they can make fastpyll_c be easi
 that it will cost them some performance:
 https://www.hboehm.info/gc/
 
+there is another better way which you can make fastpyll_c work more like zig instead of working like python but it isnt fully developed yet. here is an eample
+of that:
+https://github.com/tiagodusilva/coral
+
 if they are using fastpyll_c and they want to connect their c code up to their python code they can use this:
 https://docs.python.org/3/library/ctypes.html
 
