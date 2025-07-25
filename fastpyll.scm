@@ -125,6 +125,9 @@
 ;;and then to make a vr version of legos that works like mit scratch
 ;;the next version after that is non euclidian legos which can essentially be implemented with a visual representation
 ;;for deeply recursive pointers
+;;as the dimensionality of the non euclidian legos approaches infinite dimensions you
+;;would eventually need wireless neuralink to process the higher dimensionality of it with some kind of brain chip,
+;;and beyond that you would have to use astral projection
 
 ;;to get to ada level performances you would want the swift interop technology to have proof checking and borrow checking
 ;;end of autodocs
