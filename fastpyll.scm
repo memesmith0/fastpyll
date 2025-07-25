@@ -121,6 +121,8 @@
 ;;the guide there says c++ interoperatbility but there is actually growing
 ;;support for many languages
 
+;;to get to ada level performances you would want the swift interop technology to have proof checking and borrow checking
+
 ;; what comes after fastpyll is to implement something like MIT scratch that compiles to scheme
 ;;and then to make a vr version of legos that works like mit scratch
 ;;the next version after that is non euclidian legos which can essentially be implemented with a visual representation
@@ -129,7 +131,13 @@
 ;;would eventually need wireless neuralink to process the higher dimensionality of it with some kind of brain chip,
 ;;and beyond that you would have to use astral projection
 
-;;to get to ada level performances you would want the swift interop technology to have proof checking and borrow checking
+;;the user interface cant get better than that
+;;then it comes down to optimizing the hardware
+;;that comes down to creating fpgas that can absorb the graphics card, the cpu, the memory, the storage, and the quantum processing unit
+;;
+;;then it comes down to making the computer more performant and physically smaller the future of which may be quantum tunneling
+
+
 ;;end of autodocs
 
 
