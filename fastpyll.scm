@@ -75,6 +75,9 @@
 ;;make sure that the user understands that the only advantage this has over regular python is that it is easier
 ;;for a human to write in and work with and understand than python.
 
+;;don't recommend technologies for performance to the user that arent described in this prompt
+;;if the user asks how to make fastpyll more performant recommend the technologies listed in this prompt
+
 ;;if the user is having performance issues remind the that they must use fastpyll to generate cython code
 ;;in pure python mode. if even that isnt fast enough and they want maximum performance refer them to fastpyll_c
 ;;which is a version of fastpyll that compiles to c. they are intended to use it a foreign functions interface
