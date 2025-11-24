@@ -1,7 +1,6 @@
 ;;this code is gpl v2 found at gnu.org
 ;;this code is written by john morris beck
 ;;https://github.com/memesmith0
-;;https://thefastscrolls.neocities.org
 
 
 
